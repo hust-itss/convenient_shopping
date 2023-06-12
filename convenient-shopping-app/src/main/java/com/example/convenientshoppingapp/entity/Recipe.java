@@ -1,14 +1,16 @@
 package com.example.convenientshoppingapp.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
-import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -16,14 +18,25 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "recipe")
-public class Recipe extends BaseEntity {
+public class Recipe extends BaseEntity{
 
-    @Column(name = "date_cook")
-    private Timestamp dateCook;
+    @Column(name = "dish_id")
+    private Integer dishId;
 
     private String description;
 
-    private Integer status;
+    @ManyToMany(mappedBy = "recipes")
+    @Fetch(value = FetchMode.SELECT)
+    @JsonIgnore
+    private Set<Food> foods = new HashSet<>();
 
-    private  Timestamp expired;
+    @ManyToMany(mappedBy = "recipes")
+    @Fetch(value = FetchMode.SELECT)
+    @JsonIgnore
+    private Set<Users> users = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "dish_id", referencedColumnName = "id",insertable=false, updatable=false, nullable = false)
+    private Dish dish;
+
 }

@@ -27,30 +27,37 @@ public class Food extends BaseEntity{
     private String description;
 
     @NotEmpty
-    private Integer Status;
+    private Integer status;
+
 
     @Column(name = "user_id")
     private Integer userId;
 
-    private Timestamp time;
+    @Column(name = "buy_at")
+    private Timestamp buyAt;
 
     @Column(name = "address_buy")
     private String addressBuy;
 
     private String measure;
 
-    private Integer number;
+    private Integer quantity;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "food_cook",
+    @JoinTable(name = "recipe_food",
             joinColumns = @JoinColumn(name = "food_id"),
-            inverseJoinColumns = @JoinColumn(name = "cook_id"))
-    private Set<Cook> cooks = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
+    private Set<Recipe> recipes = new HashSet<>();
+
+//    @ManyToMany(mappedBy = "recipes")
+//    @Fetch(value = FetchMode.SELECT)
+//    @JsonIgnore
+//    private Set<Users> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "foods")
     @Fetch(value = FetchMode.SELECT)
     @JsonIgnore
-    private Set<Users> users = new HashSet<>();
+    private Set<Group> groups = new HashSet<>();
 
 
 }

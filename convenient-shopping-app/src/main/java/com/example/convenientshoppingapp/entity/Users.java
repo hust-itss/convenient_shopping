@@ -24,7 +24,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users_account")
 public class Users extends BaseEntity {
 
     @NotNull(message = "Please enter username")
@@ -49,11 +49,13 @@ public class Users extends BaseEntity {
 
     private String description;
 
+    private String fullname;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "favorite",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "cook_id"))
-    private Set<Cook> cooks = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
+    private Set<Recipe> recipes = new HashSet<>();
 
     @ManyToMany(mappedBy = "users")
     @Fetch(value = FetchMode.SELECT)
