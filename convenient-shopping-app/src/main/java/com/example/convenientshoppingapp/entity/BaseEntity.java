@@ -22,15 +22,15 @@ import java.sql.Timestamp;
 public class BaseEntity {
     @CreatedDate
     @CreationTimestamp
-    @Column(name = "created_at")
-    protected Timestamp created_at;
+    @Column(name = "create_at")
+    protected Timestamp createAt;
     @LastModifiedDate
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    protected Timestamp updated_at;
+    @Column(name = "update_at")
+    protected Timestamp updateAt;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+
 }

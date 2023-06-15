@@ -23,7 +23,7 @@ public class Recipe extends BaseEntity{
     @Column(name = "dish_id")
     private Integer dishId;
 
-    private String description;
+    private String descriptions;
 
     @ManyToMany(mappedBy = "recipes")
     @Fetch(value = FetchMode.SELECT)

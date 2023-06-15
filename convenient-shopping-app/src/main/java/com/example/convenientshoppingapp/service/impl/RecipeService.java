@@ -1,8 +1,9 @@
 package com.example.convenientshoppingapp.service.impl;
 
-import com.example.convenientshoppingapp.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
-public class RecipeServiceImpl implements RecipeService {
+public class RecipeService {
 }

@@ -28,8 +28,8 @@ poster_link VARCHAR(2555),
 descriptions text,
 status INT NOT NULL,
 user_id INT,
-but_at TIMESTAMP,
-buy_address VARCHAR(255),
+buy_at TIMESTAMP,
+address_buy VARCHAR(255),
 measure  VARCHAR(10),
 quantity INT,
 create_at TIMESTAMP default CURRENT_TIMESTAMP,
@@ -42,7 +42,7 @@ name NVARCHAR(255) NOT NULL,
 cook_date TIMESTAMP,
 descriptions TEXT,
 status INT NOT NULL,
-expride TIMESTAMP,
+expired TIMESTAMP,
 create_at TIMESTAMP default CURRENT_TIMESTAMP,
 update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -67,7 +67,7 @@ foreign key(food_id) references food(id)
 
 
 
-create table group_list(
+create table group_list (
 id int auto_increment PRIMARY KEY, 
 group_leader INT NOT NULL , 
 name VARCHAR(255) NOT NULL, 

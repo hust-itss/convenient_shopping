@@ -15,9 +15,9 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "group")
+@Table(name = "group_list")
 public class Group extends BaseEntity{
-
+    private String name;
 
     @Column(name = "group_leader")
     private Long groupLeader;
