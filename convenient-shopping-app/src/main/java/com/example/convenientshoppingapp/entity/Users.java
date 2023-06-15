@@ -47,7 +47,7 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    private String description;
+    private String descriptions;
 
     private String fullname;
 

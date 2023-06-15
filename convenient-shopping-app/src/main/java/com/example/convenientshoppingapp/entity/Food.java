@@ -11,6 +11,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,20 +22,21 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "food")
 public class Food extends BaseEntity{
+
+    private String name;
     @Column(name = "poster_link")
     private String posterLink;
 
-    private String description;
+    @Column(name = "descriptions")
+    private String descriptions;
 
-    @NotEmpty
-    private Integer status;
-
+    private int status;
 
     @Column(name = "user_id")
     private Integer userId;
 
     @Column(name = "buy_at")
-    private Timestamp buyAt;
+    private Date buyAt;
 
     @Column(name = "address_buy")
     private String addressBuy;
