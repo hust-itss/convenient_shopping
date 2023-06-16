@@ -47,6 +47,6 @@ public class FoodController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete(@PathVariable Long id) {
         foodService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Xóa dữ liệu thành công", ""));
+        return ResponseEntity.status(HttpStatus.OK).body(foodService.deleteById(id));
     }
 }
