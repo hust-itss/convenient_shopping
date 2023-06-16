@@ -62,6 +62,7 @@ public class Users extends BaseEntity {
     @JsonIgnore
     private Set<Group> groups = new HashSet<>();
 
+    // liên kết 1-n giữa id của trưởng nhóm và group
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Group> group = new ArrayList<>();
