@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/admin/recipe")
+@RequestMapping("/api/v1/recipe")
 @RequiredArgsConstructor
 public class RecipeController {
 }
