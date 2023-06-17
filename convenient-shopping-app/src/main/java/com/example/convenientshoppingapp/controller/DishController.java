@@ -8,4 +8,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/dish")
 @RequiredArgsConstructor
 public class DishController {
+
 }
