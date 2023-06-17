@@ -2,6 +2,7 @@ package com.example.convenientshoppingapp.service.impl;
 
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.Users;
+import com.example.convenientshoppingapp.repository.FoodRepository;
 import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class GroupService {
     private final UserRepository userRepository;
 
     private final GroupRepository groupRepository;
+
+    private final FoodRepository foodRepository;
 
     public void deleteGroupById(Long id) {
         groupRepository.deleteGroupById(id);
@@ -71,10 +74,10 @@ public class GroupService {
     }
 
     @Modifying
-    public void addMember(String nameMember, String nameGroup) {
+    public void addMember(String email, String nameGroup) {
         Group group = groupRepository.findByName(nameGroup)
                 .orElseThrow(() -> new RuntimeException("Group not found with name: " + nameGroup));
-        Optional<Users> user = userRepository.findByUsername(nameMember);
+        Optional<Users> user = userRepository.findByEmail(email);
         if (group != null && user.isPresent()) {
             if (group.getUsers() == null) {
                 group.setUsers(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
@@ -86,10 +89,10 @@ public class GroupService {
     }
 
     @Modifying
-    public void deleteMember(String nameMember, String nameGroup) {
+    public void deleteMember(String email, String nameGroup) {
         Group group = groupRepository.findByName(nameGroup)
                 .orElseThrow(() -> new RuntimeException("Group not found with name: " + nameGroup));
-        Optional<Users> user = userRepository.findByUsername(nameMember);
+        Optional<Users> user = userRepository.findByEmail(email);
         if (group != null && user.isPresent()) {
             if (group.getUsers() == null) {
                 group.setUsers(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
@@ -110,4 +113,35 @@ public class GroupService {
 
         log.info("Add leader to group: {}", group);
     }
+
+
+    public void addFoodsToGroup(Long id, Set<Long> idFoods) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Group not found with id: " + id));
+        if (group != null) {
+            if (group.getFoods() == null) {
+                group.setFoods(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
+            }
+            for (Long idFood : idFoods) {
+                group.getFoods().add(foodRepository.findById(idFood).get());
+            }
+        }
+        log.info("Add food to group: {}", group);
+    }
+
+    public void removeFoodsToGroup(Long id, Set<Long> idFoods) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Group not found with id: " + id));
+        if (group != null) {
+            if (group.getFoods() == null) {
+                group.setFoods(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
+            }
+            for (Long idFood : idFoods) {
+                group.getFoods().remove(foodRepository.findById(idFood).get());
+            }
+        }
+        log.info("Remove food to group: {}", group);
+    }
+
+
 }
