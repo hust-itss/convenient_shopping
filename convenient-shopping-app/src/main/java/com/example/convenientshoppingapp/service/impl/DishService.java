@@ -31,14 +31,14 @@ public class DishService {
      * Lưu dish vào database
      * Nếu dish đã tồn tại thì sẽ throw ra lỗi
      * Nếu dish chưa tồn tại thì sẽ lưu vào database
-     * Được sử dụng trong FoodController
+     * Được sử dụng trong DishController
      * @param dish
      * @return
      */
     @Modifying
     public Dish save(Dish dish) {
-        if(dishRepository.findByName(dish.getName()) != null){
-            throw new RuntimeException("Food name already exists");
+        if(dishRepository.findByName(dish.getName()).isPresent()){
+            throw new RuntimeException("Dish name already exists");
         }
         log.info("Dish: {}", dish);
         return dishRepository.save(dish);
@@ -52,10 +52,10 @@ public class DishService {
      */
     @Modifying
     public Dish update(Dish dish) {
-        // Check nếu không tìm thấy id của food thì sẽ throw ra lỗi
+        // Check nếu không tìm thấy id của dish thì sẽ throw ra lỗi
         Dish oldDish = dishRepository.findById(dish.getId())
-                .orElseThrow(() -> new RuntimeException("Food not found with id: " + dish.getId()));
-        //set các thuộc tính mới cho oldFood để luưu vào database
+                .orElseThrow(() -> new RuntimeException("Dish not found with id: " + dish.getId()));
+        //set các thuộc tính mới cho oldDish để lưu vào database
         oldDish.setDescriptions(dish.getDescriptions());
         oldDish.setName(dish.getName());
         oldDish.setCookDate(dish.getCookDate());
