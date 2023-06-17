@@ -6,12 +6,14 @@ import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,29 @@ public class GroupService {
 
     public void deleteGroupById(Long id) {
         groupRepository.deleteGroupById(id);
+    }
+
+    public Optional<Group> getGroupById(Long id) {
+        return groupRepository.findById(id);
+    }
+
+    public Optional<Group> getGroupByGroupLeader(Long id) {
+        return groupRepository.findByGroupLeader(id);
+    }
+
+    public Map<String, Object> getAllGroupByNameAndPaging(int page, int size, String name){
+        Pageable paging = PageRequest.of(page, size, Sort.by(Sort.Order.asc("id")));
+        Page<Group> groupPage;
+        List<Group> groups = new ArrayList<>();
+        groupPage = groupRepository.findAllByNameContainingIgnoreCase(name, paging);
+        groups = groupPage.getContent();
+        Map<String, Object> response = new HashMap<>();
+        response.put("groups", groups);
+        response.put("currentPage", groupPage.getNumber());
+        response.put("totalItems", groupPage.getTotalElements());
+        response.put("totalPages", groupPage.getTotalPages());
+        log.info("Get all group by name: {}", name);
+        return response;
     }
 
 
@@ -46,16 +71,18 @@ public class GroupService {
     }
 
     @Modifying
-    public void addMember(String nameNember, String nameGroup) {
+    public void addMember(String nameMember, String nameGroup) {
         Group group = groupRepository.findByName(nameGroup)
                 .orElseThrow(() -> new RuntimeException("Group not found with name: " + nameGroup));
-        Optional<Users> user = userRepository.findByUsername(nameNember);
+        Optional<Users> user = userRepository.findByUsername(nameMember);
         if (group != null && user.isPresent()) {
             if (group.getUsers() == null) {
                 group.setUsers(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
             }
             group.getUsers().add(user.get());
         }
+
+        log.info("Add member to group: {}", group);
     }
 
     @Modifying
@@ -69,5 +96,18 @@ public class GroupService {
             }
             group.getUsers().remove(user.get());
         }
+        log.info("Delete member from group: {}", group);
+    }
+
+    @Modifying
+    public void addLeader(String nameMember, String nameGroup) {
+        Group group = groupRepository.findByName(nameGroup)
+                .orElseThrow(() -> new RuntimeException("Group not found with name: " + nameGroup));
+        Optional<Users> user = userRepository.findByUsername(nameMember);
+        if (group != null && user.isPresent()) {
+            group.setGroupLeader(user.get().getId());
+        }
+
+        log.info("Add leader to group: {}", group);
     }
 }
