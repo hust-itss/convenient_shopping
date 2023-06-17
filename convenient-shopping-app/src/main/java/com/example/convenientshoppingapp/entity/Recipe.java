@@ -21,7 +21,7 @@ import java.util.Set;
 public class Recipe extends BaseEntity{
 
     @Column(name = "dish_id")
-    private Integer dishId;
+    private Long dishId;
 
     private String descriptions;
 
@@ -36,7 +36,8 @@ public class Recipe extends BaseEntity{
     private Set<Users> users = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "dish_id", referencedColumnName = "id",insertable=false, updatable=false, nullable = false)
+    @JoinColumn(name = "dish_id",insertable=false, updatable=false, nullable = false)
+    @JsonIgnore
     private Dish dish;
 
 }
