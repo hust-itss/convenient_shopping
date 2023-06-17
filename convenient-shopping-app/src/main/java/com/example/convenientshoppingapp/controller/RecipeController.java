@@ -14,33 +14,5 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class RecipeController {
 
-    private final RecipeService recipeService;
-
-    @PostMapping("")
-    public ResponseEntity<ResponseObject> save(@RequestBody @Valid Recipe recipe) {
-        recipeService.save(recipe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", recipe));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@PathVariable("id") Long id,@RequestBody @Valid Recipe recipe) {
-        recipe.setId(id);
-        recipeService.save(recipe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
-    }
-
-    @GetMapping("")
-    public ResponseEntity<ResponseObject> getAll(
-            @RequestParam(defaultValue = "10", name = "size") int size,
-            @RequestParam(defaultValue = "0", name = "page") int page
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", recipeService.getAllRecipe(page,size)));
-
-    }
-
-    @DeleteMapping("")
-    public ResponseEntity<ResponseObject> delete(@RequestBody Long[] ids) {
-        recipeService.deleteRecipeById(ids);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Xóa dữ liệu thành công", ""));
-    }
+   
 }
