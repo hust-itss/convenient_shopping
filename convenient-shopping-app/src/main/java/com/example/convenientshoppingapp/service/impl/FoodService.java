@@ -1,8 +1,10 @@
 package com.example.convenientshoppingapp.service.impl;
 
 import com.example.convenientshoppingapp.entity.Food;
+import com.example.convenientshoppingapp.entity.Recipe;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.repository.FoodRepository;
+import com.example.convenientshoppingapp.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import java.util.*;
 public class FoodService {
 
     private final FoodRepository foodRepository;
+    private final RecipeRepository recipeRepository;
 
 
     /**
@@ -126,6 +129,44 @@ public class FoodService {
         for (Long id : ids){
             foodRepository.deleteById(id);
         }
+    }
+
+    /**
+     * Thêm một liên kết giữa food và recipe vào bảng food_recipe
+     * @param foodId
+     * @param recipeId
+     */
+    public void addRecipeToFood(Long foodId, Long recipeId){
+        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
+        Optional<Recipe> recipe = Optional.ofNullable(recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId)));
+        if(food != null && recipe.isPresent()){
+            if(food.getRecipes() == null){
+                food.setRecipes(new HashSet<>());
+            }
+            food.getRecipes().add(recipe.get());
+        }
+        foodRepository.save(food);
+//        recipeRepository.save(recipe);
+        log.info("Add recipe to food successfully");
+    }
+
+
+    /**
+     * Xóa một liên kết giữa food và recipe trong bảng food_recipe
+     * @param foodId
+     * @param recipeId
+     */
+    public void removeRecipeFromFood(Long foodId, Long recipeId){
+        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
+        Optional<Recipe> recipe = recipeRepository.findById(recipeId);
+        if(food != null && recipe.isPresent()){
+            if(food.getRecipes() == null){
+                food.setRecipes(new HashSet<>());
+            }
+            food.getRecipes().remove(recipe.get());
+        }
+        foodRepository.save(food);
+        log.info("Remove recipe to food successfully");
     }
 
 }

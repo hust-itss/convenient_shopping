@@ -59,6 +59,9 @@ public class GroupService {
         if(groupRepository.findByName(group.getName()).isPresent()){
             throw new RuntimeException("Group name already exists");
         }
+        if(userRepository.findById(group.getGroupLeader()).isEmpty()){
+            throw new RuntimeException("Group leader not found");
+        }
         log.info("Group: {}", group);
         return groupRepository.save(group);
     }
@@ -115,33 +118,40 @@ public class GroupService {
     }
 
 
-    public void addFoodsToGroup(Long id, Set<Long> idFoods) {
-        Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Group not found with id: " + id));
+    /**
+     * Thêm food vào group
+     * @param groupId
+     * @param idFoods
+     */
+    public void addFoodsToGroup(Long groupId, Long idFoods) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found with id: " + groupId));
         if (group != null) {
             if (group.getFoods() == null) {
                 group.setFoods(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
             }
-            for (Long idFood : idFoods) {
-                group.getFoods().add(foodRepository.findById(idFood).get());
-            }
+            group.getFoods().add(foodRepository.findById(idFoods).get());
         }
+        groupRepository.save(group);
         log.info("Add food to group: {}", group);
     }
 
-    public void removeFoodsToGroup(Long id, Set<Long> idFoods) {
-        Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Group not found with id: " + id));
+    /**
+     * Xóa food khỏi group
+     * @param groupId
+     * @param idFoods
+     */
+    public void removeFoodsFromGroup(Long groupId, Long idFoods) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found with id: " + groupId));
         if (group != null) {
             if (group.getFoods() == null) {
                 group.setFoods(new HashSet<>()); // Khởi tạo user là một HashSet mới nếu roles là null
             }
-            for (Long idFood : idFoods) {
-                group.getFoods().remove(foodRepository.findById(idFood).get());
-            }
+            group.getFoods().remove(foodRepository.findById(idFoods).get());
         }
+        groupRepository.save(group);
         log.info("Remove food to group: {}", group);
     }
-
 
 }

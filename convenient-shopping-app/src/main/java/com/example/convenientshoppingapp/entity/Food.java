@@ -61,5 +61,4 @@ public class Food extends BaseEntity{
     @JsonIgnore
     private Set<Group> groups = new HashSet<>();
 
-
 }

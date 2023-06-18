@@ -1,6 +1,7 @@
 package com.example.convenientshoppingapp.repository;
 
 import com.example.convenientshoppingapp.entity.Group;
+import com.example.convenientshoppingapp.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

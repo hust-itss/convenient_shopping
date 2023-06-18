@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.PublicKey;
+
 @RestController
 @RequestMapping("/api/v1/foods")
 @RequiredArgsConstructor
@@ -16,12 +18,23 @@ public class FoodController {
 
     private final FoodService foodService;
 
+    /**
+     * Tạo mới food
+     * @param food
+     * @return
+     */
     @PostMapping("")
     public ResponseEntity<ResponseObject> save(@Valid @RequestBody Food food) {
         foodService.save(food);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", food));
     }
 
+    /**
+     * Cập nhật food
+     * @param id
+     * @param food
+     * @return
+     */
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> update(@PathVariable Long id, @Valid @RequestBody Food food) {
         food.setId(id);
@@ -29,12 +42,24 @@ public class FoodController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Cập nhật dữ liệu thành công", food));
     }
 
+    /**
+     * Tìm kiếm food theo id
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
         Food food = foodService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", food));
     }
 
+    /**
+     * Tìm kiếm food theo name có phân trang
+     * @param name
+     * @param page
+     * @param size
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity<ResponseObject> findAll(
             @RequestParam(defaultValue = "", name = "name") String name,
@@ -44,9 +69,38 @@ public class FoodController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", foodService.findFoodByName(page,size,name)));
     }
 
+    /**
+     * Xóa food theo id
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete(@PathVariable Long id) {
         foodService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body(foodService.deleteById(id));
+    }
+
+    /**
+     * Thêm recipe vào food
+     * @param foodId
+     * @param recipeId
+     * @return
+     */
+    @PostMapping("/addRecipe/{foodId}/recipe/{recipeId}")
+    public ResponseEntity<ResponseObject> addRecipeToFood(@PathVariable Long foodId, @PathVariable Long recipeId) {
+        foodService.addRecipeToFood(foodId, recipeId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", ""));
+    }
+
+    /**
+     * Xóa recipe khỏi food
+     * @param foodId
+     * @param recipeId
+     * @return
+     */
+    @PostMapping("/removeRecipe/{foodId}/recipe/{recipeId}")
+    public ResponseEntity<ResponseObject> removeRecipeFromFood(@PathVariable Long foodId, @PathVariable Long recipeId) {
+        foodService.removeRecipeFromFood(foodId, recipeId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", ""));
     }
 }

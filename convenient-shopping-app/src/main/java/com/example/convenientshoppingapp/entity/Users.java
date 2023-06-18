@@ -24,7 +24,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users_account")
+@Table(name = "user_account")
 public class Users extends BaseEntity {
 
     @NotNull(message = "Please enter username")
