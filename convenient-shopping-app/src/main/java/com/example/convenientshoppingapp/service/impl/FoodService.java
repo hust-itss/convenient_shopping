@@ -169,4 +169,15 @@ public class FoodService {
         log.info("Remove recipe to food successfully");
     }
 
+    /**
+     * Lấy ra danh sách các recipe của food
+     * @param foodId
+     * @return
+     */
+    public Set<Recipe> getRecipesByFoodId(Long foodId){
+        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
+        return food.getRecipes();
+    }
+
+
 }

@@ -124,5 +124,15 @@ public class GroupController {
                 .body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
     }
 
+    /**
+     * Lấy danh sách món ăn trong group
+     * @param groupId
+     * @return
+     */
+    @GetMapping("/getFoods/{groupId}")
+    public ResponseEntity<ResponseObject> getFoods(@PathVariable Long groupId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Lấy dữ liệu thành công", groupService.getFoodsByGroupId(groupId)));
+    }
 
 }

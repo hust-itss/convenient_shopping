@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,5 +128,17 @@ public class DishService {
         }
     }
 
+    /**
+     * Thông báo món ăn sắp hết hạn nếu hạn sử dụng tính đến hôm này còn dưới 3 ngày
+     * @param dish
+     * @return
+     */
+    public boolean isExpiringSoon(Dish dish) {
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        long threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+        long timeDifference = dish.getExpired().getTime() - currentTime.getTime();
+
+        return timeDifference < threeDaysInMillis;
+    }
 }
 

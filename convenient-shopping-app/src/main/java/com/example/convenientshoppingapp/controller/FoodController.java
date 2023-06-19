@@ -103,4 +103,14 @@ public class FoodController {
         foodService.removeRecipeFromFood(foodId, recipeId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", ""));
     }
+
+    /**
+     * Lấy danh sách recipe của food
+     * @param foodId
+     * @return
+     */
+    @GetMapping("/getRecipe/{foodId}")
+    public ResponseEntity<ResponseObject> getRecipeFromFood(@PathVariable Long foodId) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", foodService.getRecipesByFoodId(foodId)));
+    }
 }

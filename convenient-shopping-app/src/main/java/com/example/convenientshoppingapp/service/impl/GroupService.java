@@ -1,5 +1,6 @@
 package com.example.convenientshoppingapp.service.impl;
 
+import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.Users;
 import com.example.convenientshoppingapp.repository.FoodRepository;
@@ -153,5 +154,17 @@ public class GroupService {
         groupRepository.save(group);
         log.info("Remove food to group: {}", group);
     }
+
+    /**
+     * Lấy ra danh sách food của group
+     * @param groupId
+     * @return
+     */
+    public Set<Food> getFoodsByGroupId(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found with id: " + groupId));
+        return group.getFoods();
+    }
+
 
 }
