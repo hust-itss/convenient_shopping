@@ -20,6 +20,7 @@ public class GroupController {
 
     /**
      * Tạo mới group
+     *
      * @param group
      * @return
      */
@@ -32,6 +33,7 @@ public class GroupController {
 
     /**
      * Cập nhật group
+     *
      * @param id
      * @param group
      * @return
@@ -46,6 +48,7 @@ public class GroupController {
 
     /**
      * Thêm thành viên vào group
+     *
      * @param nameMember
      * @param nameGroup
      * @return
@@ -60,6 +63,7 @@ public class GroupController {
 
     /**
      * Lấy dữ liệu group theo id
+     *
      * @param id
      * @return
      */
@@ -72,6 +76,7 @@ public class GroupController {
 
     /**
      * Tìm kiếm group theo tên có phân trang
+     *
      * @param name
      * @param page
      * @param size
@@ -88,6 +93,7 @@ public class GroupController {
 
     /**
      * Xóa group
+     *
      * @param ids
      * @return
      */
@@ -100,6 +106,7 @@ public class GroupController {
 
     /**
      * Thêm món ăn vào group
+     *
      * @param groupId
      * @param foodId
      * @return
@@ -113,6 +120,7 @@ public class GroupController {
 
     /**
      * Xóa món ăn khỏi group
+     *
      * @param groupId
      * @param foodId
      * @return
@@ -126,6 +134,7 @@ public class GroupController {
 
     /**
      * Lấy danh sách món ăn trong group
+     *
      * @param groupId
      * @return
      */
@@ -134,5 +143,4 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject("success", "Lấy dữ liệu thành công", groupService.getFoodsByGroupId(groupId)));
     }
-
 }
