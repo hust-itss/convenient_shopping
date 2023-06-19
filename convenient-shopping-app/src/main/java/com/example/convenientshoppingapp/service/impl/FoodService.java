@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 @Service
@@ -60,6 +61,7 @@ public class FoodService {
         oldFood.setMeasure(food.getMeasure());
         oldFood.setAddressBuy(food.getAddressBuy());
         oldFood.setBuyAt(food.getBuyAt());
+        oldFood.setPrice(food.getPrice());
         oldFood.setPosterLink(food.getPosterLink());
         oldFood.setStatus(food.getStatus());
         oldFood.setUserId(food.getUserId());
@@ -138,15 +140,16 @@ public class FoodService {
      */
     public void addRecipeToFood(Long foodId, Long recipeId){
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
-        Optional<Recipe> recipe = Optional.ofNullable(recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId)));
-        if(food != null && recipe.isPresent()){
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId));
+        if(food != null && recipe != null){
             if(food.getRecipes() == null){
                 food.setRecipes(new HashSet<>());
             }
-            food.getRecipes().add(recipe.get());
+            food.getRecipes().add(recipe);
+            recipe.getFoods().add(food);
         }
         foodRepository.save(food);
-//        recipeRepository.save(recipe);
+        recipeRepository.save(recipe);
         log.info("Add recipe to food successfully");
     }
 
@@ -178,6 +181,45 @@ public class FoodService {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
         return food.getRecipes();
     }
+
+    /**
+     * Filter food theo ngày mua có phân trang
+     * @param fromDate
+     * @param toDate
+     * @param page
+     * @param size
+     * @return
+     */
+    public Map<String, Object> filterFoodByBuyDate(Date fromDate, Date toDate, int page, int size) {
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<Food> foodPage = foodRepository.findByBuyAtBetween(fromDate, toDate, paging);
+        log.info("On filter food by buy date");
+
+        List<Food> filteredFoods = foodPage.getContent();
+
+        // Tính tổng giá tiền các food đã mua
+        int totalCost = 0;
+        for (Food food : filteredFoods) {
+            // Lấy số lượng food đã mua và giá tiền của mỗi food
+            int quantity = food.getQuantity();
+            // Giả sử giá tiền của mỗi food được lưu trong thuộc tính price (thêm thuộc tính này vào class Food nếu cần)
+            Double price = food.getPrice();
+
+            // Tính tổng giá tiền
+            totalCost += quantity * price;
+        }
+
+        // Chuẩn bị kết quả trả về
+        Map<String, Object> response = new HashMap<>();
+        response.put("filteredFoods", filteredFoods);
+        response.put("totalCost", totalCost);
+        response.put("currentPage", foodPage.getNumber());
+        response.put("totalItems", foodPage.getTotalElements());
+        response.put("totalPages", foodPage.getTotalPages());
+        return response;
+    }
+
 
 
 }

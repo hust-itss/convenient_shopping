@@ -30,6 +30,8 @@ public class Food extends BaseEntity{
     @Column(name = "descriptions")
     private String descriptions;
 
+    private Double price;
+
     private int status;
 
     @Column(name = "user_id")
