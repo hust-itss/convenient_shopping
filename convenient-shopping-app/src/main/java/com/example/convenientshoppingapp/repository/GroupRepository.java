@@ -19,4 +19,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
 
     Page<Group> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 
+    Boolean existsByGroupLeaderAndId(Long userId, Long groupId);
+
 }

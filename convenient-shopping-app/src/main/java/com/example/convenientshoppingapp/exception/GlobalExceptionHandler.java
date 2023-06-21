@@ -3,6 +3,8 @@ package com.example.convenientshoppingapp.exception;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.entity.ValidationObject;
 import jakarta.persistence.EntityExistsException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler({ NoSuchElementException.class })
@@ -23,6 +26,11 @@ public class GlobalExceptionHandler {
             NoSuchElementException exception
     ) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("error", exception.getMessage(), ""));
+    }
+
+    @ExceptionHandler(JwtExpirationExceptionHandler.class)
+    public ResponseEntity<ResponseObject> handleExpiredJwtException(JwtExpirationExceptionHandler e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("error", "Phiên làm việc đã hết hạn, vui lòng đăng nhập lại", ""));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
