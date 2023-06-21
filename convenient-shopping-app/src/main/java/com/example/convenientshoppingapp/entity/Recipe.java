@@ -1,5 +1,6 @@
 package com.example.convenientshoppingapp.entity;
 
+import com.example.convenientshoppingapp.entity.auth.Users;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

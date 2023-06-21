@@ -1,22 +1,23 @@
 spring:
-  datasource:
-    url: jdbc:mysql://157.245.59.135:3306/btl?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
-    username: itss2022
-    password: 5Bcu/bgvJ/DDh8N.
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    #    hibernate:
-    #      ddl-auto: create
-    #    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-    database: mysql
+    datasource:
+        url: jdbc:mysql://157.245.59.135:3306/btl?useSSL=false&serverTimezone=UTC
+        username: itss2022
+        password: 5Bcu/bgvJ/DDh8N.
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        #hibernate:
+        #ddl-auto: create-drop
+        #show-sql: true
+        properties:
+            hibernate:
+                format_sql: true
+        database: mysql
 
 application:
-  security:
-    jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-      expiration: 1800000 # 86400000 # a day
-      refresh-token:
-        expiration: 604800000 # 7 days
+    security:
+        jwt:
+            secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+            expiration: 1800000 # 86400000 # a day
+            cookie-name: itss2022_hust
+            refresh-token:
+                expiration: 604800000 # 7 days
