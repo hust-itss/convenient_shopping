@@ -139,8 +139,11 @@ public class FoodService {
      * @param recipeId
      */
     public void addRecipeToFood(Long foodId, Long recipeId){
+        // Check nếu không tìm thấy id của food thì sẽ throw ra lỗi
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
+        // Check nếu không tìm thấy id của recipe thì sẽ throw ra lỗi
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId));
+        // Check nếu food và recipe không null thì mới thực hiện thêm vào bảng food_recipe
         if(food != null && recipe != null){
             if(food.getRecipes() == null){
                 food.setRecipes(new HashSet<>());
@@ -219,7 +222,5 @@ public class FoodService {
         response.put("totalPages", foodPage.getTotalPages());
         return response;
     }
-
-
 
 }
