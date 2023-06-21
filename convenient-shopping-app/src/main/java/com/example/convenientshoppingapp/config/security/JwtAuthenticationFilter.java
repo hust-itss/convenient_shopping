@@ -5,9 +5,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.exception.JwtExpirationExceptionHandler;
 import com.example.convenientshoppingapp.repository.TokenRepository;
 import com.example.convenientshoppingapp.service.impl.auth.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,18 +19,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
@@ -62,28 +62,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        log.info("userEmail: {}", userEmail);
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Users userDetails = (Users) this.userDetailsService.loadUserByUsername(userEmail);
-            var isTokenValid = tokenRepository.findByToken(jwt)
-                    .map(t -> !t.isExpired() && !t.isRevoked())
-                    .orElse(false);
-            //var listRole = userDetails.getAuthorities()
-            if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            userEmail = jwtService.extractUsername(jwt);
+            log.info("userEmail: {}", userEmail);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                Users userDetails = (Users) this.userDetailsService.loadUserByUsername(userEmail);
+                var isTokenValid = tokenRepository.findByToken(jwt)
+                        .map(t -> !t.isExpired() && !t.isRevoked())
+                        .orElse(false);
+                if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                log.info("Authorities: {}", userDetails.getAuthorities());
+                    log.info("Authorities: {}", userDetails.getAuthorities());
+                }
             }
+        } catch (ExpiredJwtException expiredJwtException) {
+            throw new JwtExpirationExceptionHandler("Expired JWT token", expiredJwtException);
         }
+
         log.info("End do filter once per request, {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
