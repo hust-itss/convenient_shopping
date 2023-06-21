@@ -3,6 +3,7 @@ package com.example.convenientshoppingapp.service.impl;
 import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.repository.FoodRepository;
 import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
