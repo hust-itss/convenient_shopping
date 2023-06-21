@@ -28,8 +28,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseObject> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         List<ValidationObject> validationObjectList = new ArrayList<ValidationObject>();
+        List<String> listFieldExist = new ArrayList<String>();
         exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            validationObjectList.add(new ValidationObject(fieldError.getField(), fieldError.getDefaultMessage()));
+            if(!listFieldExist.contains(fieldError.getField())) {
+                validationObjectList.add(new ValidationObject(fieldError.getField(), fieldError.getDefaultMessage()));
+                listFieldExist.add(fieldError.getField());
+            }
+
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("error", "Lỗi dữ liệu đầu vào", validationObjectList));
     }
