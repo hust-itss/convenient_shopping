@@ -165,7 +165,5 @@ public class GroupService {
                 .orElseThrow(() -> new RuntimeException("Group not found with id: " + groupId));
         return group.getFoods();
     }
-
-
-
+    
 }
