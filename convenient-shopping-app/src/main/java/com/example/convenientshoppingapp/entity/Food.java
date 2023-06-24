@@ -56,7 +56,7 @@ public class Food extends BaseEntity{
 //    @ManyToMany(mappedBy = "recipes")
 //    @Fetch(value = FetchMode.SELECT)
 //    @JsonIgnore
-//    private Set<Users> users = new HashSet<>();
+//    private Set<User> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "foods")
     @Fetch(value = FetchMode.SELECT)
