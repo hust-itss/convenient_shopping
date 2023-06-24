@@ -39,8 +39,6 @@ public class SecurityConfiguration {
                         "/api/v1/users/**"
                 )
                 .permitAll()
-
-
                 .requestMatchers("/api/v1/dish/**").hasAnyAuthority("ROLE_USER")
 
                 .requestMatchers(GET, "/api/v1/dish/**").hasAnyAuthority(ERole.ROLE_USER.name())

@@ -1,5 +1,6 @@
 package com.example.convenientshoppingapp.controller;
 
+import com.example.convenientshoppingapp.dto.group.AddMemberRequest;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.GroupService;
@@ -142,5 +143,14 @@ public class GroupController {
     public ResponseEntity<ResponseObject> getFoods(@PathVariable Long groupId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject("success", "Lấy dữ liệu thành công", groupService.getFoodsByGroupId(groupId)));
+    }
+
+    /**
+     * Thêm thành viên vào nhóm
+     * @return
+     */
+    @PostMapping("{groupId}/add_member")
+    public ResponseEntity<ResponseObject> addMember(@PathVariable Long groupId ,@Valid @RequestBody AddMemberRequest request) {
+        return groupService.addMember(request.getListId(), groupId);
     }
 }

@@ -1,21 +1,29 @@
 package com.example.convenientshoppingapp.service.impl;
 
+import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.Group;
+import com.example.convenientshoppingapp.entity.GroupMember;
+import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.entity.auth.Users;
 import com.example.convenientshoppingapp.repository.FoodRepository;
+import com.example.convenientshoppingapp.repository.GroupMemberRespository;
 import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +34,8 @@ public class GroupService {
     private final GroupRepository groupRepository;
 
     private final FoodRepository foodRepository;
+
+    private final GroupMemberRespository groupMemberRespository;
 
     public void deleteGroupById(Long id) {
         groupRepository.deleteGroupById(id);
@@ -90,6 +100,50 @@ public class GroupService {
         }
 
         log.info("Add member to group: {}", group);
+    }
+
+    public ResponseEntity<ResponseObject> addMember(ArrayList<Long> listUserId, Long groupId) {
+        // Check xem mình có phải chủ group đó không
+        Long ownerId = UserUtil.getCurrentUserId();
+        Boolean isGroupExist = groupRepository.existsByGroupLeaderAndId(ownerId, groupId);
+        if(!isGroupExist) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Nhóm không tồn tại hoặc không thuộc quyền sở hữu của bạn", ""));
+        }
+
+        ArrayList<Users> listUserExist = userRepository.findByIdIn(listUserId);
+        // Lấy những user id tồn tại trong CSDL
+        ArrayList<Long> listIdExist = new ArrayList<>();
+        listUserExist.forEach(e -> {
+            // Chỉ thêm các id khác với chủ sở hữu
+            if(e.getId() != ownerId) {
+                listIdExist.add(e.getId());
+            }
+        });
+        if (listIdExist.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject("error", "Danh sách ID User không được để trống", ""));
+        }
+
+        // Loại bỏ những user đã có trong nhóm
+        ArrayList<GroupMember> groupMembers = groupMemberRespository.findAllByUserIdInAndGroupId(listIdExist, groupId);
+        List<Long> listIdJoined = groupMembers.stream().map((g) -> g.getUserId()).collect(Collectors.toList());
+        var groupMember = new GroupMember().builder().groupId(groupId);
+
+        listIdExist.forEach(id -> {
+            if(!listIdJoined.contains(id)) {
+                groupMember.userId(id);
+                groupMemberRespository.save(groupMember.build());
+            }
+
+        });
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Thêm thành viên vào nhóm thành công ", ""));
+
     }
 
     @Modifying
