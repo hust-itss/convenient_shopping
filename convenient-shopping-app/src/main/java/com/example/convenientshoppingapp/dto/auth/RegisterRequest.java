@@ -20,6 +20,6 @@ public class RegisterRequest {
     private String email;
 
     @NotEmpty(message = "Mật khẩu không được để trống")
-    @Length(min = 6, message = "Mật khẩu tôối thiểu 6 ký tự")
+    @Length(min = 6, message = "Mật khẩu tối thiểu 6 ký tự")
     private String password;
 }
