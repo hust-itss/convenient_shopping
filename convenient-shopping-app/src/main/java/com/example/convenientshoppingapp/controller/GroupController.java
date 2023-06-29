@@ -92,6 +92,11 @@ public class GroupController {
                 groupService.getAllGroupByNameAndPaging(page, size, name)));
     }
 
+    @GetMapping("group-name/{name}")
+    public ResponseEntity<ResponseObject> getGroupByName(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", groupService.getGroupByName(name)));
+    }
+
     /**
      * Xóa group
      *
