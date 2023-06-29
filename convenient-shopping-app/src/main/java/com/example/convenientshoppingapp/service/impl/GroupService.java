@@ -64,6 +64,11 @@ public class GroupService {
         return response;
     }
 
+    public Group getGroupByName(String name) {
+        return groupRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("Group not found with name: " + name));
+    }
+
 
     @Modifying
     public Group save(Group group) {
