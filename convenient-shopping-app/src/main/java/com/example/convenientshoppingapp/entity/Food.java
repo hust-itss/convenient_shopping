@@ -35,7 +35,7 @@ public class Food extends BaseEntity{
     private int status;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "buy_at")
     private Date buyAt;

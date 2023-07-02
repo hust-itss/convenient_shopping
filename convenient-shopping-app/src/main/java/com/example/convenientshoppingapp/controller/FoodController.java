@@ -1,5 +1,6 @@
 package com.example.convenientshoppingapp.controller;
 
+import com.example.convenientshoppingapp.dto.food.CreateFoodRequest;
 import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.FoodService;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/foods")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class FoodController {
 
@@ -27,9 +29,8 @@ public class FoodController {
      * @return
      */
     @PostMapping("")
-    public ResponseEntity<ResponseObject> save(@Valid @RequestBody Food food) {
-        foodService.save(food);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", food));
+    public ResponseEntity<ResponseObject> save(@Valid @RequestBody CreateFoodRequest food) {
+        return foodService.save(food);
     }
 
     /**
@@ -41,8 +42,7 @@ public class FoodController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> update(@PathVariable Long id, @Valid @RequestBody Food food) {
         food.setId(id);
-        foodService.update(food);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Cập nhật dữ liệu thành công", food));
+        return foodService.update(food);
     }
 
     /**
@@ -67,9 +67,10 @@ public class FoodController {
     public ResponseEntity<ResponseObject> findAll(
             @RequestParam(defaultValue = "", name = "name") String name,
             @RequestParam(defaultValue = "0", name = "page") int page,
-            @RequestParam(defaultValue = "10", name = "size") int size
+            @RequestParam(defaultValue = "10", name = "size") int size,
+            @RequestParam(defaultValue = "", name = "date") String date
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", foodService.findFoodByName(page,size,name)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", foodService.findFoodByName(page,size,name, date)));
     }
 
 
@@ -81,8 +82,7 @@ public class FoodController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete(@PathVariable Long id) {
-        foodService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(foodService.deleteById(id));
+        return foodService.deleteById(id);
     }
 
     /**

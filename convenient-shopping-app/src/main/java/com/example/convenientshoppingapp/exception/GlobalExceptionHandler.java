@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -56,6 +57,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseObject> handleUnwantedException(Exception e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseObject("error", "Unknow error", ""));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ResponseObject> handleBadCredentialsException(BadCredentialsException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseObject("error", "Tên tài khoản hoặc mật khẩu không chính xác", ""));
     }
 
     @ExceptionHandler(EntityExistsException.class)

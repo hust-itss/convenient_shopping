@@ -2,6 +2,7 @@ package com.example.convenientshoppingapp.entity.auth;
 
 import com.example.convenientshoppingapp.Utils.Gender;
 import com.example.convenientshoppingapp.entity.BaseEntity;
+import com.example.convenientshoppingapp.entity.FoodHistory;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.Recipe;
 import com.fasterxml.jackson.annotation.JsonIgnore;
