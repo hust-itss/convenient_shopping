@@ -13,6 +13,7 @@ import org.hibernate.annotations.FetchMode;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -35,7 +36,7 @@ public class Food extends BaseEntity{
     private int status;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "buy_at")
     private Date buyAt;
@@ -62,5 +63,8 @@ public class Food extends BaseEntity{
     @Fetch(value = FetchMode.SELECT)
     @JsonIgnore
     private Set<Group> groups = new HashSet<>();
+
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL)
+    private List<FoodHistory>  foodHistories;
 
 }

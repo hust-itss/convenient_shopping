@@ -23,7 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
-import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.*;
 
 @EnableWebSecurity
 @Configuration
@@ -50,8 +50,13 @@ public class SecurityConfiguration {
                 )
                 .permitAll()
                 .requestMatchers("/api/v1/dish/**").hasAnyAuthority("ROLE_USER")
-
                 .requestMatchers(GET, "/api/v1/dish/**").hasAnyAuthority(ERole.ROLE_USER.name())
+
+                .requestMatchers("/api/v1/food/**").hasAnyAuthority("ROLE_USER")
+                .requestMatchers(POST, "/api/v1/food/**").hasAnyAuthority(ERole.ROLE_USER.name())
+
+                .requestMatchers(GET, "/api/v1/food/**").hasAnyAuthority(ERole.ROLE_USER.name())
+                .requestMatchers(PUT, "/api/v1/food/**").hasAnyAuthority(ERole.ROLE_USER.name())
                 .anyRequest()
                 .authenticated()
                 .and()
