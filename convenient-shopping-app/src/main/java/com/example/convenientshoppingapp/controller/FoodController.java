@@ -16,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/foods")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class FoodController {
 
