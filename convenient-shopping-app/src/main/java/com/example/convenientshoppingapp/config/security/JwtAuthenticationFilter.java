@@ -4,10 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.entity.auth.Users;
 import com.example.convenientshoppingapp.exception.JwtExpirationExceptionHandler;
 import com.example.convenientshoppingapp.repository.TokenRepository;
 import com.example.convenientshoppingapp.service.impl.auth.JwtService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,6 +31,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -85,63 +89,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException expiredJwtException) {
-            throw new JwtExpirationExceptionHandler("Expired JWT token", expiredJwtException);
+            response.setContentType("application/json; charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write(this.convertObjectToJson(new ResponseObject("error", "jwt_token_expired",null)));
+            return;
+            //throw new ServletException("Expired JWT token", expiredJwtException);
         }
 
         log.info("End do filter once per request, {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
-
-    protected void doFilterInternal2(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/v1/users")) {
-            filterChain.doFilter(request, response);
-            return;
+    private String convertObjectToJson(Object object) throws JsonProcessingException {
+        if (object == null) {
+            return null;
         }
-        log.info("Start do filter once per request, {}", request.getRequestURI());
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
-            try{
-                log.info("Try: ", request.getRequestURI());
-                String token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = Algorithm.HMAC256(secretKey.getBytes());
-                JWTVerifier verifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = verifier.verify(token);
-                String username = decodedJWT.getSubject();
-                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-                if(roles == null ){
-                    log.info("Roles is null");
-                    throw new RuntimeException("Roles is null");
-                }
-                log.info("Username: {}", username);
-                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                Arrays.stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
-
-                log.info("Authorities: {}", authorities);
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                log.info("End do filter once per request, {}", request.getRequestURI());
-                filterChain.doFilter(request, response);
-                logger.info("test");
-            }catch (Exception e) {
-                logger.error("Cannot set user authentication: {}", e); // Ghi lại log nếu không thể đặt đối tượng authentication vào SecurityContextHolder
-                response.setHeader("error", e.getMessage());
-                response.setStatus(FORBIDDEN.value());
-                Map<String, String> error = new HashMap<>();
-                error.put("error_message", e.getMessage());
-                response.setContentType("application/json");
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
-            }
-        }
-        else {
-//            log.info("End do filter once per request, {}", request.getRequestURI());
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(object);
     }
-
 }

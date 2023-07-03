@@ -3,6 +3,7 @@ package com.example.convenientshoppingapp.exception;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.entity.ValidationObject;
 import jakarta.persistence.EntityExistsException;
+import jakarta.servlet.ServletException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("error", exception.getMessage(), ""));
     }
 
-    @ExceptionHandler(JwtExpirationExceptionHandler.class)
-    public ResponseEntity<ResponseObject> handleExpiredJwtException(JwtExpirationExceptionHandler e) {
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<ResponseObject> handleExpiredJwtException(ServletException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("error", "Phiên làm việc đã hết hạn, vui lòng đăng nhập lại", ""));
     }
 
@@ -62,11 +63,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ResponseObject> handleBadCredentialsException(BadCredentialsException e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseObject("error", "Tên tài khoản hoặc mật khẩu không chính xác", ""));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("error", "Tên tài khoản hoặc mật khẩu không chính xác", ""));
     }
 
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<ResponseObject> handleEntityExistsException(EntityExistsException e) {
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseObject("error", e.getMessage(), ""));
     }
 

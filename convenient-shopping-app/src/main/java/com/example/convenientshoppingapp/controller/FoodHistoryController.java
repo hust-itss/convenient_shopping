@@ -5,6 +5,7 @@ import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.FoodHistoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,18 @@ import org.springframework.web.bind.annotation.*;
 public class FoodHistoryController {
     private final FoodHistoryService foodHistoryService;
     @PostMapping ("")
-    public ResponseEntity<ResponseObject> getAll(@Valid @RequestBody CreateFoodHistoryRequest createFoodHistoryRequest) {
+    public ResponseEntity<ResponseObject> create(@Valid @RequestBody CreateFoodHistoryRequest createFoodHistoryRequest) {
         return foodHistoryService.create(createFoodHistoryRequest);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ResponseObject> getAll(
+            @RequestParam(defaultValue = "", name = "name") String name,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "10", name = "size") int size,
+            @RequestParam(defaultValue = "", name = "start_date") String startDate,
+            @RequestParam(defaultValue = "", name = "end_date") String endDate
+    ) {
+        return foodHistoryService.getAll(page, size, name, startDate, endDate);
     }
 }
