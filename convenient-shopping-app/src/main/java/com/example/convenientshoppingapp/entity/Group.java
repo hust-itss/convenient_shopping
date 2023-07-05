@@ -20,7 +20,7 @@ import java.util.Set;
 public class Group extends BaseEntity{
     private String name;
 
-    @Column(name = "group_leader")
+    @Column(name = "owner_id")
     private Long groupLeader;
     @ManyToOne
     @JoinColumn(insertable=false, updatable=false,name = "id")

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 @NoArgsConstructor
-@Table(name = "user_account", uniqueConstraints = {
+@Table(name = "user", uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")
 })

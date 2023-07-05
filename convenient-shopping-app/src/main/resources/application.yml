@@ -1,8 +1,8 @@
 spring:
     datasource:
         url: jdbc:mysql://157.245.59.135:3306/btl?useSSL=false&serverTimezone=UTC
-        username: root
-        password:
+        username: itss2022
+        password: 5Bcu/bgvJ/DDh8N.
         driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
         #hibernate:
