@@ -1,12 +1,9 @@
 package com.example.convenientshoppingapp.entity.auth;
 
-import com.example.convenientshoppingapp.entity.BaseEntity;
-import com.example.convenientshoppingapp.entity.auth.ERole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -30,7 +27,7 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     @Fetch(value = FetchMode.SELECT)
     @JsonIgnore
-    private Set<Users> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     public Role(String name) {
         this.name = name;

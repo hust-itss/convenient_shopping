@@ -57,6 +57,8 @@ public class SecurityConfiguration {
 
                 .requestMatchers(GET, "/api/v1/food/**").hasAnyAuthority(ERole.ROLE_USER.name())
                 .requestMatchers(PUT, "/api/v1/food/**").hasAnyAuthority(ERole.ROLE_USER.name())
+
+                .requestMatchers(GET, "/api/v1/group/**").hasAnyAuthority(ERole.ROLE_USER.name())
                 .anyRequest()
                 .authenticated()
                 .and()

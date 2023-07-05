@@ -1,6 +1,6 @@
 package com.example.convenientshoppingapp.entity;
 
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,15 +26,15 @@ public class Recipe extends BaseEntity{
 
     private String descriptions;
 
-    @ManyToMany(mappedBy = "recipes")
-    @Fetch(value = FetchMode.SELECT)
+    @ManyToMany(mappedBy = "recipes", fetch = FetchType.LAZY)
+    //@Fetch(value = FetchMode.SELECT)
     @JsonIgnore
     private Set<Food> foods = new HashSet<>();
 
     @ManyToMany(mappedBy = "recipes")
     @Fetch(value = FetchMode.SELECT)
     @JsonIgnore
-    private Set<Users> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "dish_id",insertable=false, updatable=false, nullable = false)

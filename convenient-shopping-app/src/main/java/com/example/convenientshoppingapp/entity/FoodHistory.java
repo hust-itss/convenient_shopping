@@ -1,6 +1,6 @@
 package com.example.convenientshoppingapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.convenientshoppingapp.entity.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Getter
@@ -20,7 +19,7 @@ public class FoodHistory extends BaseEntity{
     @Column(name = "food_id")
     private Long foodId;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", insertable=false, updatable=false)
     private Long userId;
 
     private Double quantity;
@@ -40,8 +39,7 @@ public class FoodHistory extends BaseEntity{
     @Column(name = "expire_at")
     private Timestamp expireAt;
 
-    @ManyToOne
-    @JoinColumn(name = "food_id",insertable=false, updatable=false, nullable = false)
-    @JsonIgnore
-    private Food food;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name="user_id")
+//    private User user;
 }

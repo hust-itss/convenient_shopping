@@ -1,10 +1,10 @@
 package com.example.convenientshoppingapp.service.impl.auth;
 
 import com.example.convenientshoppingapp.entity.auth.Role;
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 
 public interface UserService {
-    Users saveUser(Users user);
+    User saveUser(User user);
     Role saveRole(Role role);
     void addRoleToUser(String username, String roleName);
 }
