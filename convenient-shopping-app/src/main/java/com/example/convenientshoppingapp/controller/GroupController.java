@@ -88,8 +88,7 @@ public class GroupController {
             @RequestParam(defaultValue = "", name = "name") String name,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "10", name = "size") int size) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công",
-                groupService.getAllGroupByNameAndPaging(page, size, name)));
+        return groupService.getAllGroupByNameAndPaging(page, size, name);
     }
 
     @GetMapping("group-name/{name}")

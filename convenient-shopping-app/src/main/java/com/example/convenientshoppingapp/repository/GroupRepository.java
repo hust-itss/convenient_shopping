@@ -14,11 +14,11 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     Optional<Group> findByName(String name);
     Optional<Group> findById(Long id);
 
-    Optional<Group> findByGroupLeader(Long id);
+    Optional<Group> findByOwnerId(Long id);
     Optional<Group> deleteGroupById(Long id);
 
     Page<Group> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    Boolean existsByGroupLeaderAndId(Long userId, Long groupId);
+    Boolean existsByOwnerIdAndId(Long userId, Long groupId);
 
 }

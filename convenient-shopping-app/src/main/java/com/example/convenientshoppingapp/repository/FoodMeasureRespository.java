@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FoodMeasureRespository extends JpaRepository<FoodMeasure, Long> {
     Boolean existsByName(String name);
+
+    FoodMeasure findFoodMeasureById(Long id);
 }

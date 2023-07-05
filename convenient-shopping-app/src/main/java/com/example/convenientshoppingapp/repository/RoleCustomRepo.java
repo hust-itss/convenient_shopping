@@ -1,7 +1,7 @@
 package com.example.convenientshoppingapp.repository;
 
 import com.example.convenientshoppingapp.entity.auth.Role;
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
@@ -17,9 +17,9 @@ public class RoleCustomRepo {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<Role> getRole(Users user){
+    public List<Role> getRole(User user){
         StringBuilder sql = new StringBuilder()
-                .append("select r.name as name from user_account u join user_roles ur on u.id = ur.user_id \n"
+                .append("select r.name as name from user u join user_roles ur on u.id = ur.user_id \n"
                         +"join roles r on r.id = ur.role_id");
         sql.append(" where 1=1 ");
 
