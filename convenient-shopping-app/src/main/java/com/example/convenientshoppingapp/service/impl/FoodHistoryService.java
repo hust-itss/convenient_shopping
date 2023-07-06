@@ -10,6 +10,7 @@ import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.repository.FoodHistoryRepository;
 import com.example.convenientshoppingapp.repository.FoodMeasureRespository;
 import com.example.convenientshoppingapp.repository.FoodRepository;
+import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.spec.FoodHistorySpecification;
 import com.example.convenientshoppingapp.repository.spec.MySpecification;
 import com.example.convenientshoppingapp.repository.spec.SearchCriteria;
@@ -40,6 +41,7 @@ public class FoodHistoryService {
     private final FoodHistoryRepository foodHistoryRepository;
     private final FoodRepository foodRepository;
     private final FoodMeasureRespository foodMeasureRespository;
+    private final GroupRepository groupRepository;
     private final ModelMapper modelMapper;
     public ResponseEntity<ResponseObject> create(CreateFoodHistoryRequest foodRequest) {
         // Kiểm tra xem thực phẩm có tồn tại hay không
@@ -54,8 +56,16 @@ public class FoodHistoryService {
                     .body(new ResponseObject("error", "Đơn vị thực phẩm này không tồn tại trong hệ thống", ""));
         }
 
+        Long userId = UserUtil.getCurrentUserId();
+        if(foodRequest.getGroupId() != null) {
+            if(!groupRepository.existsByOwnerIdAndId(userId, foodRequest.getGroupId())) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseObject("error", "Bạn không thể thêm thực phẩm vào nhóm này", ""));
+            }
+        }
         FoodHistory food = modelMapper.map(foodRequest, FoodHistory.class);
-        food.setUserId(UserUtil.getCurrentUserId());
+        food.setUserId(userId);
         return  ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseObject("success", "", foodHistoryRepository.save(food)));
@@ -91,6 +101,11 @@ public class FoodHistoryService {
         MySpecification esEmployeeCode = new MySpecification();
         esEmployeeCode.add(new SearchCriteria("userId", userId, SearchOperation.EQUAL));
         spec = spec.and(esEmployeeCode);
+
+        MySpecification<FoodHistory> esGroupId = new MySpecification();
+        esEmployeeCode.add(new SearchCriteria("groupId", null, SearchOperation.IS_NULL));
+        spec = spec.and(esGroupId);
+
 
         Page<FoodHistory> pageFood;
         List<FoodHistory> foods = new ArrayList<FoodHistory>();

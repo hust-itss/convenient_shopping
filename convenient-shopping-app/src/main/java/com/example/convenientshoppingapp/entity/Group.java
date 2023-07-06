@@ -21,10 +21,14 @@ import java.util.Set;
 public class Group extends BaseEntity{
     private String name;
 
-    @Column(name = "owner_id")
+    @Column(name = "owner_id", insertable = false, updatable = false)
     private Long ownerId;
 
     @ManyToMany(cascade=CascadeType.ALL)
-    @JoinTable(name="group_member", joinColumns=@JoinColumn(name="id"), inverseJoinColumns=@JoinColumn(name="user_id"))
+    @JoinTable(name="group_member", joinColumns=@JoinColumn(name="group_id"), inverseJoinColumns=@JoinColumn(name="user_id"))
     private List<User> users;
+
+    @ManyToOne
+    @JoinColumn(name="owner_id", nullable=false)
+    private User owner;
 }

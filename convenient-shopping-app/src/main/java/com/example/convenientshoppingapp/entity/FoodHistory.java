@@ -19,12 +19,20 @@ public class FoodHistory extends BaseEntity{
     @Column(name = "food_id")
     private Long foodId;
 
-    @Column(name = "user_id", insertable=false, updatable=false)
+    @Column(name = "user_id")
     private Long userId;
 
     private Double quantity;
+
+    @Column(name = "group_id")
+    private Long groupId;
+
     @Column(name = "measure_id")
     private Long measureId;
+
+    @Column(name = "bought_by")
+    private Long boughtBy;
+
     private Double price;
 
     @Column(name = "buy_at")
@@ -39,7 +47,20 @@ public class FoodHistory extends BaseEntity{
     @Column(name = "expire_at")
     private Timestamp expireAt;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="user_id")
-//    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", updatable = false, insertable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="bought_by", updatable = false, insertable = false)
+    private User userBought;
+
+    @OneToOne(cascade = CascadeType.ALL, optional=false)
+    @JoinColumn(name = "food_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Food food;
+
+    @OneToOne(cascade = CascadeType.ALL, optional=false)
+    @JoinColumn(name = "measure_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private FoodMeasure measure;
+
 }

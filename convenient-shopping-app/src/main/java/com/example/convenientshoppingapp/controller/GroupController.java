@@ -1,6 +1,7 @@
 package com.example.convenientshoppingapp.controller;
 
 import com.example.convenientshoppingapp.dto.group.AddMemberRequest;
+import com.example.convenientshoppingapp.dto.group.RemoveMemberRequest;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.GroupService;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/group")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class GroupController {
 
@@ -48,21 +50,6 @@ public class GroupController {
     }
 
     /**
-     * Thêm thành viên vào group
-     *
-     * @param nameMember
-     * @param nameGroup
-     * @return
-     */
-    @DeleteMapping("/removeMember")
-    public ResponseEntity<ResponseObject> removeMember(@PathVariable String nameMember,
-                                                       @RequestBody @Valid String nameGroup) {
-        groupService.deleteMember(nameMember, nameGroup);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
-    }
-
-    /**
      * Lấy dữ liệu group theo id
      *
      * @param id
@@ -70,9 +57,16 @@ public class GroupController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
-        Optional<Group> group = groupService.getGroupById(id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("success", "Lấy dữ liệu thành công", group));
+        return groupService.getGroupById(id);
+    }
+
+    @GetMapping("/{id}/foods")
+    public ResponseEntity<ResponseObject> getListFoods(@PathVariable Long id,
+       @RequestParam(defaultValue = "", name = "name") String name,
+       @RequestParam(defaultValue = "0", name = "page") int page,
+       @RequestParam(defaultValue = "10", name = "size") int size)
+    {
+        return groupService.getListFoods(id, name, page, size);
     }
 
     /**
@@ -88,7 +82,7 @@ public class GroupController {
             @RequestParam(defaultValue = "", name = "name") String name,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "10", name = "size") int size) {
-        return groupService.getAllGroupByNameAndPaging(page, size, name);
+        return groupService.getAll();
     }
 
     @GetMapping("group-name/{name}")
@@ -109,33 +103,6 @@ public class GroupController {
                 .body(new ResponseObject("success", "Xóa dữ liệu thành công", ""));
     }
 
-    /**
-     * Thêm món ăn vào group
-     *
-     * @param groupId
-     * @param foodId
-     * @return
-     */
-    @PostMapping("/addFood/{groupId}/foods/{foodId}")
-    public ResponseEntity<ResponseObject> addFood(@PathVariable Long groupId, @PathVariable Long foodId) {
-        groupService.addFoodsToGroup(groupId, foodId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
-    }
-
-    /**
-     * Xóa món ăn khỏi group
-     *
-     * @param groupId
-     * @param foodId
-     * @return
-     */
-    @PostMapping("/removeFood/{groupId}/foods/{foodId}")
-    public ResponseEntity<ResponseObject> removeFood(@PathVariable Long groupId, @PathVariable Long foodId) {
-        groupService.removeFoodsFromGroup(groupId, foodId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
-    }
 
     /**
      * Lấy danh sách món ăn trong group
@@ -153,8 +120,13 @@ public class GroupController {
      * Thêm thành viên vào nhóm
      * @return
      */
-    @PostMapping("{groupId}/add_member")
+    @PostMapping("{groupId}/member")
     public ResponseEntity<ResponseObject> addMember(@PathVariable Long groupId ,@Valid @RequestBody AddMemberRequest request) {
-        return groupService.addMember(request.getListId(), groupId);
+        return groupService.addMember(request.getUsername(), groupId);
+    }
+
+    @DeleteMapping("{groupId}/member")
+    public ResponseEntity<ResponseObject> deleteMember(@PathVariable Long groupId ,@Valid @RequestBody RemoveMemberRequest request) {
+        return groupService.removeMember(request.getUserId(), groupId);
     }
 }
