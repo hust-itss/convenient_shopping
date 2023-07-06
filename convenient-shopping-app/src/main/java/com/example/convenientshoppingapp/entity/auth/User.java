@@ -67,9 +67,9 @@ public class User extends BaseEntity implements UserDetails {
 //    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 //    private List<FoodHistory> foodHistories = new ArrayList<>();
 
-    // liên kết 1-n giữa id của trưởng nhóm và group
+     //liên kết 1-n giữa id của trưởng nhóm và group
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    @JsonIgnore
+//    @JoinColumn(name = "ownerId")
 //    private List<Group> group = new ArrayList<>();
 
     @Override

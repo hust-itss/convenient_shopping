@@ -1,5 +1,8 @@
 package com.example.convenientshoppingapp.dto.food_history;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.convenientshoppingapp.dto.auth.UserResponse;
+import com.example.convenientshoppingapp.dto.food.FoodMeasureResponse;
+import com.example.convenientshoppingapp.dto.food.FoodResponse;
+import com.example.convenientshoppingapp.entity.FoodMeasure;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +25,8 @@ public class FoodHistoryResponse {
     private String buyAddress;
     private int isStoredInFridge;
     private Timestamp expireAt;
+    private FoodMeasureResponse measure;
+    private UserResponse user;
+    private FoodResponse food;
+    private UserResponse userBought;
 }

@@ -72,7 +72,10 @@ public class MySpecification<T> implements Specification<T> {
                 LocalDate date = LocalDate.parse(criteria.getValue().toString());
                 Timestamp timestamp = Timestamp.valueOf(date.atStartOfDay());
                 predicates.add(builder.lessThanOrEqualTo(root.get(criteria.getKey()), timestamp));
+            } else if (criteria.getOperation().equals(SearchOperation.IS_NULL)) {
+                predicates.add(builder.isNull(root.get(criteria.getKey())));
             }
+
         }
         return builder.and(predicates.toArray(new Predicate[0]));
     }

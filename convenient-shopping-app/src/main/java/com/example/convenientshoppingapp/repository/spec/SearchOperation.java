@@ -14,4 +14,5 @@ public enum SearchOperation {
     NOT_IN,
     DATE_START,
     DATE_END,
+    IS_NULL,
 }

@@ -1,16 +1,15 @@
 package com.example.convenientshoppingapp.dto.group;
 
-import com.example.convenientshoppingapp.entity.Food;
-import com.example.convenientshoppingapp.entity.auth.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-
+@Getter
+@Setter
 public class GroupResponse {
     private Long id;
     private String name;
-    private Long groupLeader;
-    private String leaderName;
+    private Boolean isOwner;
+    private Integer totalMember;
+    private Long ownerId;
+    private String ownerName;
 }

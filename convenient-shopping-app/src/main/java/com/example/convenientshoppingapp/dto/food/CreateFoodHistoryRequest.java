@@ -18,4 +18,6 @@ public class CreateFoodHistoryRequest {
 
     @NotNull(message = "Mã đơn vị thực phẩm không được để trống")
     private Long measureId;
+
+    private Long groupId;
 }
