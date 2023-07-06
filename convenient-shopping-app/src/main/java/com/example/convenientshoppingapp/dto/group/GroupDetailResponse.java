@@ -11,6 +11,7 @@ import java.util.List;
 public class GroupDetailResponse {
     private Long id;
     private String name;
+    private Boolean isOwner;
     private List<UserResponse> users;
     private UserResponse owner;
 }
