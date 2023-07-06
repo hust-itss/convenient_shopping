@@ -21,7 +21,7 @@ import java.util.Set;
 public class Group extends BaseEntity{
     private String name;
 
-    @Column(name = "owner_id", insertable = false, updatable = false)
+    @Column(name = "owner_id")
     private Long ownerId;
 
     @ManyToMany(cascade=CascadeType.ALL)
@@ -29,6 +29,6 @@ public class Group extends BaseEntity{
     private List<User> users;
 
     @ManyToOne
-    @JoinColumn(name="owner_id", nullable=false)
+    @JoinColumn(name="owner_id", insertable = false, updatable = false)
     private User owner;
 }

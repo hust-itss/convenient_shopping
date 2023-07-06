@@ -1,6 +1,7 @@
 package com.example.convenientshoppingapp.controller;
 
 import com.example.convenientshoppingapp.dto.group.AddMemberRequest;
+import com.example.convenientshoppingapp.dto.group.CreateGroupRequest;
 import com.example.convenientshoppingapp.dto.group.RemoveMemberRequest;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.ResponseObject;
@@ -28,10 +29,8 @@ public class GroupController {
      * @return
      */
     @PostMapping("")
-    public ResponseEntity<ResponseObject> insert(@RequestBody @Valid Group group) {
-        groupService.save(group);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ResponseObject("success", "Insert dữ liệu thành công", group));
+    public ResponseEntity<ResponseObject> create(@RequestBody @Valid CreateGroupRequest group) {
+        return groupService.save(group);
     }
 
     /**

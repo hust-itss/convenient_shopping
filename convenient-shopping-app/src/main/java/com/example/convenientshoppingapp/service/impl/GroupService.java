@@ -4,6 +4,7 @@ import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.dto.PaginationResponse;
 import com.example.convenientshoppingapp.dto.auth.UserResponse;
 import com.example.convenientshoppingapp.dto.food_history.FoodHistoryResponse;
+import com.example.convenientshoppingapp.dto.group.CreateGroupRequest;
 import com.example.convenientshoppingapp.dto.group.GroupDetailResponse;
 import com.example.convenientshoppingapp.dto.group.GroupResponse;
 import com.example.convenientshoppingapp.entity.*;
@@ -64,6 +65,8 @@ public class GroupService {
 
         Group group = groupOptional.get();
         GroupDetailResponse response = modelMapper.map(group, GroupDetailResponse.class);
+        Long userId = UserUtil.getCurrentUserId();
+        response.setIsOwner(group.getOwnerId() == userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseObject("success", "", response));
@@ -147,15 +150,18 @@ public class GroupService {
 
 
     @Modifying
-    public Group save(Group group) {
-        if(groupRepository.findByName(group.getName()).isPresent()){
-            throw new RuntimeException("Group name already exists");
-        }
-        if(userRepository.findById(group.getOwnerId()).isEmpty()){
-            throw new RuntimeException("Group leader not found");
-        }
-        log.info("Group: {}", group);
-        return groupRepository.save(group);
+    public ResponseEntity<ResponseObject> save(CreateGroupRequest groupRequest) {
+        Group group = new Group();
+        Long userId = UserUtil.getCurrentUserId();
+        group.setOwnerId(userId);
+        group.setName(groupRequest.getName());
+        groupRepository.save(group);
+        GroupResponse groupResponse = modelMapper.map(group, GroupResponse.class);
+        groupResponse.setIsOwner(true);
+        groupResponse.setTotalMember(0);
+        return  ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseObject("success", "Tạo nhóm thành công", groupResponse));
     }
 
     @Modifying
