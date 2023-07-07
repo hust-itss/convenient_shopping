@@ -15,8 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+//@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(locations = "classpath:application.yml")
 @ExtendWith(MockitoExtension.class)
@@ -46,13 +49,10 @@ public class DishServiceTest {
     @Mock
     private DishRepository dishRepository;
 
-    @Mock
-    private DishController dishController;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         dishService = new DishService(dishRepository);
-        dishController = new DishController(dishService);
     }
 
     @Test
@@ -103,14 +103,14 @@ public class DishServiceTest {
     public void updateDish_ShouldUpdateDish_WhenValidIdProvided() {
         // Arrange
         Dish existingDish = new Dish();
-        existingDish.setId(1L);
+        existingDish.setId(2L);
         existingDish.setName("Existing Dish");
         existingDish.setStatus(0);
 
         Dish updatedDish = new Dish();
-        updatedDish.setId(1L);
+        updatedDish.setId(2L);
         updatedDish.setName("Updated Dish");
-        updatedDish.setStatus(1);
+        updatedDish.setStatus(0);
 
         when(dishRepository.findById(updatedDish.getId())).thenReturn(Optional.of(existingDish));
         when(dishRepository.save(existingDish)).thenReturn(updatedDish);
@@ -123,6 +123,7 @@ public class DishServiceTest {
         assertEquals(updatedDish.getStatus(), result.getStatus());
         // Kiểm tra các thuộc tính khác (nếu có)
     }
+
 
     @Test
     public void findDishById_ShouldReturnDish_WhenValidIdProvided() {
