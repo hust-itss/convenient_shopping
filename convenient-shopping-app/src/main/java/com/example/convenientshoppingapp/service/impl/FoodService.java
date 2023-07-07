@@ -3,7 +3,6 @@ package com.example.convenientshoppingapp.service.impl;
 import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.dto.food.CreateFoodRequest;
 import com.example.convenientshoppingapp.entity.Food;
-import com.example.convenientshoppingapp.entity.FoodMeasure;
 import com.example.convenientshoppingapp.entity.Recipe;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.repository.FoodRepository;
@@ -26,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -60,7 +58,7 @@ public class FoodService {
         }
         Food food = modelMapper.map(foodRequest, Food.class);
         Long userId = UserUtil.getCurrentUserId();
-        food.setUserId(userId);
+        food.setOwnerId(userId);
         foodRepository.save(food);
 
         return  ResponseEntity
@@ -85,11 +83,11 @@ public class FoodService {
         }
         Food newFood = oldFood.get();
         //set các thuộc tính mới cho oldFood để luưu vào database
-        newFood.setDescriptions(food.getDescriptions());
+        newFood.setDescription(food.getDescription());
         newFood.setName(food.getName());
         newFood.setPosterLink(food.getPosterLink());
-        newFood.setStatus(food.getStatus());
-        newFood.setUserId(food.getUserId());
+        //newFood.setStatus(food.getStatus());
+        newFood.setOwnerId(food.getOwnerId());
 
         return  ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -118,14 +116,14 @@ public class FoodService {
     @Modifying
     public ResponseEntity<ResponseObject> deleteById(Long id) {
         Long userId = UserUtil.getCurrentUserId();
-        Boolean isExist = foodRepository.existsByIdAndUserId(id, userId);
+        Boolean isExist = foodRepository.existsByIdAndOwnerId(id, userId);
         if(!isExist) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ResponseObject("error", "Bạn không phải người thêm nên không thể xóa thực phẩm này", ""));
         }
 
-        foodRepository.deleteByIdAndUserId(id, userId);
+        foodRepository.deleteByIdAndOwnerId(id, userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseObject("success", "Xóa thực phẩm thành công", ""));
@@ -191,21 +189,21 @@ public class FoodService {
      * @param recipeId
      */
     public void addRecipeToFood(Long foodId, Long recipeId){
-        // Check nếu không tìm thấy id của food thì sẽ throw ra lỗi
-        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
-        // Check nếu không tìm thấy id của recipe thì sẽ throw ra lỗi
-        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId));
-        // Check nếu food và recipe không null thì mới thực hiện thêm vào bảng food_recipe
-        if(food != null && recipe != null){
-            if(food.getRecipes() == null){
-                food.setRecipes(new HashSet<>());
-            }
-            food.getRecipes().add(recipe);
-            recipe.getFoods().add(food);
-        }
-        foodRepository.save(food);
-        recipeRepository.save(recipe);
-        log.info("Add recipe to food successfully");
+//        // Check nếu không tìm thấy id của food thì sẽ throw ra lỗi
+//        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
+//        // Check nếu không tìm thấy id của recipe thì sẽ throw ra lỗi
+//        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found with id: " + recipeId));
+//        // Check nếu food và recipe không null thì mới thực hiện thêm vào bảng food_recipe
+//        if(food != null && recipe != null){
+//            if(food.getRecipes() == null){
+//                food.setRecipes(new HashSet<>());
+//            }
+//            food.getRecipes().add(recipe);
+//            recipe.getFoods().add(food);
+//        }
+//        foodRepository.save(food);
+//        recipeRepository.save(recipe);
+//        log.info("Add recipe to food successfully");
     }
 
 
@@ -215,16 +213,16 @@ public class FoodService {
      * @param recipeId
      */
     public void removeRecipeFromFood(Long foodId, Long recipeId){
-        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
-        Optional<Recipe> recipe = recipeRepository.findById(recipeId);
-        if(food != null && recipe.isPresent()){
-            if(food.getRecipes() == null){
-                food.setRecipes(new HashSet<>());
-            }
-            food.getRecipes().remove(recipe.get());
-        }
-        foodRepository.save(food);
-        log.info("Remove recipe to food successfully");
+//        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
+//        Optional<Recipe> recipe = recipeRepository.findById(recipeId);
+//        if(food != null && recipe.isPresent()){
+//            if(food.getRecipes() == null){
+//                food.setRecipes(new HashSet<>());
+//            }
+//            food.getRecipes().remove(recipe.get());
+//        }
+//        foodRepository.save(food);
+//        log.info("Remove recipe to food successfully");
     }
 
     /**
@@ -246,33 +244,33 @@ public class FoodService {
      * @return
      */
     public Map<String, Object> filterFoodByBuyDate(Date fromDate, Date toDate, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-
-        Page<Food> foodPage = foodRepository.findByBuyAtBetween(fromDate, toDate, paging);
-        log.info("On filter food by buy date");
-
-        List<Food> filteredFoods = foodPage.getContent();
-
-        // Tính tổng giá tiền các food đã mua
-        int totalCost = 0;
-        for (Food food : filteredFoods) {
-            // Lấy số lượng food đã mua và giá tiền của mỗi food
-            int quantity = food.getQuantity();
-            // Giả sử giá tiền của mỗi food được lưu trong thuộc tính price (thêm thuộc tính này vào class Food nếu cần)
-            Double price = food.getPrice();
-
-            // Tính tổng giá tiền
-            totalCost += quantity * price;
-        }
-
-        // Chuẩn bị kết quả trả về
-        Map<String, Object> response = new HashMap<>();
-        response.put("filteredFoods", filteredFoods);
-        response.put("totalCost", totalCost);
-        response.put("currentPage", foodPage.getNumber());
-        response.put("totalItems", foodPage.getTotalElements());
-        response.put("totalPages", foodPage.getTotalPages());
-        return response;
+//        Pageable paging = PageRequest.of(page, size);
+//
+//        Page<Food> foodPage = foodRepository.findByBuyAtBetween(fromDate, toDate, paging);
+//        log.info("On filter food by buy date");
+//
+//        List<Food> filteredFoods = foodPage.getContent();
+//
+//        // Tính tổng giá tiền các food đã mua
+//        int totalCost = 0;
+//        for (Food food : filteredFoods) {
+//            // Lấy số lượng food đã mua và giá tiền của mỗi food
+//            //int quantity = food.getQuantity();
+//            // Giả sử giá tiền của mỗi food được lưu trong thuộc tính price (thêm thuộc tính này vào class Food nếu cần)
+//            //Double price = food.getPrice();
+//
+//            // Tính tổng giá tiền
+//            //totalCost += quantity * price;
+//        }
+//
+//        // Chuẩn bị kết quả trả về
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("filteredFoods", filteredFoods);
+//        response.put("totalCost", totalCost);
+//        response.put("currentPage", foodPage.getNumber());
+//        response.put("totalItems", foodPage.getTotalElements());
+//        response.put("totalPages", foodPage.getTotalPages());
+        return null;
     }
 
 //

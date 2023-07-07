@@ -2,7 +2,6 @@ package com.example.convenientshoppingapp.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,25 +25,13 @@ public class Food extends BaseEntity{
     @Column(name = "poster_link")
     private String posterLink;
 
-    @Column(name = "descriptions")
-    private String descriptions;
+    @Column(name = "description")
+    private String description;
 
-    private Double price;
 
-    private int status;
-
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "buy_at")
-    private Date buyAt;
-
-    @Column(name = "address_buy")
-    private String addressBuy;
-
-    private String measure;
-
-    private Integer quantity;
+    @Column(name = "owner_id")
+    @JoinTable
+    private Long ownerId;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "recipe_food",
@@ -54,17 +39,14 @@ public class Food extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "recipe_id"))
     private Set<Recipe> recipes = new HashSet<>();
 
+    //
 //    @ManyToMany(mappedBy = "recipes")
 //    @Fetch(value = FetchMode.SELECT)
 //    @JsonIgnore
 //    private Set<User> users = new HashSet<>();
 
-    @ManyToMany(mappedBy = "foods")
-    @Fetch(value = FetchMode.SELECT)
-    @JsonIgnore
-    private Set<Group> groups = new HashSet<>();
-
-    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL)
-    private List<FoodHistory>  foodHistories;
-
+//    @ManyToMany(mappedBy = "foods")
+//    @Fetch(value = FetchMode.SELECT)
+//    @JsonIgnore
+//    private Set<Group> groups = new HashSet<>();
 }

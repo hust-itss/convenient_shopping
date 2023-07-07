@@ -4,7 +4,7 @@ import com.example.convenientshoppingapp.entity.Dish;
 import com.example.convenientshoppingapp.entity.Favorite;
 import com.example.convenientshoppingapp.entity.Recipe;
 import com.example.convenientshoppingapp.entity.ResponseObject;
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 import com.example.convenientshoppingapp.repository.DishRepository;
 import com.example.convenientshoppingapp.repository.FavoriteRespository;
 import com.example.convenientshoppingapp.repository.RecipeRepository;
@@ -18,7 +18,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,8 +38,8 @@ public class RecipeService {
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ResponseObject("error", "Công thức nấu ăn này không tồn tại", ""));
         }
-        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = users.getId();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = user.getId();
         if(favoriteRespository.existsByUserIdAndRecipeId(userId, recipeId)) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
