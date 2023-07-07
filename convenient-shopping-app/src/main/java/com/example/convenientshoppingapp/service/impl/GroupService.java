@@ -7,9 +7,11 @@ import com.example.convenientshoppingapp.dto.food_history.FoodHistoryResponse;
 import com.example.convenientshoppingapp.dto.group.CreateGroupRequest;
 import com.example.convenientshoppingapp.dto.group.GroupDetailResponse;
 import com.example.convenientshoppingapp.dto.group.GroupResponse;
+import com.example.convenientshoppingapp.dto.group.UpdateGroupRequest;
 import com.example.convenientshoppingapp.entity.*;
 import com.example.convenientshoppingapp.entity.auth.User;
 import com.example.convenientshoppingapp.repository.*;
+import com.example.convenientshoppingapp.repository.spec.FoodHistorySpecification;
 import com.example.convenientshoppingapp.repository.spec.MySpecification;
 import com.example.convenientshoppingapp.repository.spec.SearchCriteria;
 import com.example.convenientshoppingapp.repository.spec.SearchOperation;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,13 +127,33 @@ public class GroupService {
                 .orElseThrow(() -> new RuntimeException("Group not found with name: " + name));
     }
 
-    public ResponseEntity<ResponseObject> getListFoods(Long groupId, String name, int page, int size) {
+    public ResponseEntity<ResponseObject> getListFoods(Long groupId, String name, int page, int size, String startDate, String endDate) {
         Specification<FoodHistory> spec = where(null);
 
         Pageable paging = PageRequest.of(page, size, Sort.by(
                         Sort.Order.asc("id")
                 )
         );
+        //Filter theo tên
+        if(name.length() > 0) {
+            spec = spec.and(FoodHistorySpecification.hasFoodContainName(name));
+        }
+
+        // Filter ngày bắt đầu
+
+        if(!startDate.isEmpty()) {
+            LocalDate date = LocalDate.parse(startDate);
+            MySpecification esFoodStartDate = new MySpecification();
+            esFoodStartDate.add(new SearchCriteria("createAt", date, SearchOperation.DATE_START));
+            spec = spec.and(esFoodStartDate);
+        }
+        // Filter ngày kết thúc
+        if(!endDate.isEmpty()) {
+            LocalDate date = LocalDate.parse(endDate);
+            MySpecification esFoodStartDate = new MySpecification();
+            esFoodStartDate.add(new SearchCriteria("createAt", date, SearchOperation.DATE_END));
+            spec = spec.and(esFoodStartDate);
+        }
 
         MySpecification esGroupId = new MySpecification();
         esGroupId.add(new SearchCriteria("groupId", groupId, SearchOperation.EQUAL));
@@ -165,13 +188,19 @@ public class GroupService {
     }
 
     @Modifying
-    public Group update(Group group){
-        Group oldGroup = groupRepository.findById(group.getId())
-                .orElseThrow(() -> new RuntimeException("Group not found with id: " + group.getId()));
+    public ResponseEntity<ResponseObject> update(Long groupId, UpdateGroupRequest group){
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<Group> groupOptional = groupRepository.findByOwnerIdAndId(userId, groupId);
+        if(!groupOptional.isPresent()) {
+            return  ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Nhóm này không tồn tại hoặc không thuộc quyền sở hữu của bạn", ""));
+        }
+        Group oldGroup = groupOptional.get();
         oldGroup.setName(group.getName());
-        oldGroup.setOwnerId(group.getOwnerId());
-        log.info("Group: {}", group);
-        return groupRepository.save(oldGroup);
+        return  ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Cập nhật nhóm thành công", ""));
     }
 
     public ResponseEntity<ResponseObject> addMember(String username, Long groupId) {

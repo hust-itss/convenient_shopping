@@ -114,12 +114,12 @@ public class FoodHistoryService {
         Map<String, Object> response = new HashMap<>();
         List<FoodHistoryResponse> employeesDto = Arrays.asList(modelMapper.map(pageFood.getContent(), FoodHistoryResponse[].class));
 
-        employeesDto.forEach(e -> {
-            Food food = foodRepository.findFoodById(e.getFoodId());
-            e.setFoodName(food.getName());
-            e.setFoodImage(food.getPosterLink());
-            e.setMeasureName(foodMeasureRespository.findFoodMeasureById(e.getMeasureId()).getName());
-        });
+//        employeesDto.forEach(e -> {
+//            Food food = foodRepository.findFoodById(e.getFoodId());
+//            e.setFoodName(food.getName());
+//            e.setFoodImage(food.getPosterLink());
+//            e.setMeasureName(foodMeasureRespository.findFoodMeasureById(e.getMeasureId()).getName());
+//        });
         response.put("items", employeesDto);
         response.put("currentPage", pageFood.getNumber());
         response.put("totalItems", pageFood.getTotalElements());
@@ -132,7 +132,13 @@ public class FoodHistoryService {
 
     public ResponseEntity<ResponseObject> update(Long id, UpdateFoodHistoryRequest newValue) {
         Long userId = UserUtil.getCurrentUserId();
-        Optional<FoodHistory> foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndUserId(id, userId);
+        Optional<FoodHistory> foodHistoryOptional;
+        if(newValue.getGroupId() != null) {
+            foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndGroupId(id, newValue.getGroupId());
+        } else {
+            foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndUserId(id, userId);
+        }
+
         if(!foodHistoryOptional.isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -149,8 +155,10 @@ public class FoodHistoryService {
             foodHistory.setIsStoredInFridge(newValue.getIsStoredInFridge());
             foodHistory.setMeasureId(newValue.getMeasureId());
             foodHistory.setQuantity(newValue.getQuantity());
+            foodHistory.setBoughtBy(userId);
         } else {
             foodHistory.setBuyAt(null);
+            foodHistory.setBoughtBy(null);
         }
 
         foodHistoryRepository.save(foodHistory);

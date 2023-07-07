@@ -3,6 +3,7 @@ package com.example.convenientshoppingapp.controller;
 import com.example.convenientshoppingapp.dto.group.AddMemberRequest;
 import com.example.convenientshoppingapp.dto.group.CreateGroupRequest;
 import com.example.convenientshoppingapp.dto.group.RemoveMemberRequest;
+import com.example.convenientshoppingapp.dto.group.UpdateGroupRequest;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.GroupService;
@@ -41,11 +42,8 @@ public class GroupController {
      * @return
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@PathVariable Long id, @RequestBody @Valid Group group) {
-        group.setId(id);
-        groupService.update(group);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("success", "Cập nhật dữ liệu thành công", group));
+    public ResponseEntity<ResponseObject> update(@PathVariable Long id, @RequestBody @Valid UpdateGroupRequest group) {
+        return groupService.update(id, group);
     }
 
     /**
@@ -63,9 +61,12 @@ public class GroupController {
     public ResponseEntity<ResponseObject> getListFoods(@PathVariable Long id,
        @RequestParam(defaultValue = "", name = "name") String name,
        @RequestParam(defaultValue = "0", name = "page") int page,
-       @RequestParam(defaultValue = "10", name = "size") int size)
+       @RequestParam(defaultValue = "10", name = "size") int size,
+       @RequestParam(defaultValue = "", name = "startDate") String startDate,
+       @RequestParam(defaultValue = "", name = "endDate") String endDate
+                                                       )
     {
-        return groupService.getListFoods(id, name, page, size);
+        return groupService.getListFoods(id, name, page, size, startDate, endDate);
     }
 
     /**
