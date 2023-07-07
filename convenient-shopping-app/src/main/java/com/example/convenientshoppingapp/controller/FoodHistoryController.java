@@ -1,6 +1,7 @@
 package com.example.convenientshoppingapp.controller;
 
 import com.example.convenientshoppingapp.dto.food.CreateFoodHistoryRequest;
+import com.example.convenientshoppingapp.dto.food_history.UpdateFoodHistoryRequest;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.FoodHistoryService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/food_history")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class FoodHistoryController {
     private final FoodHistoryService foodHistoryService;
@@ -28,5 +30,20 @@ public class FoodHistoryController {
             @RequestParam(defaultValue = "", name = "end_date") String endDate
     ) {
         return foodHistoryService.getAll(page, size, name, startDate, endDate);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseObject> get(@PathVariable Long id) {
+        return foodHistoryService.getDetail(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseObject> updateBuyStatus(@PathVariable Long id, @Valid @RequestBody UpdateFoodHistoryRequest newValue) {
+        return foodHistoryService.update(id, newValue);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseObject> delete(@PathVariable Long id) {
+        return foodHistoryService.delete(id);
     }
 }

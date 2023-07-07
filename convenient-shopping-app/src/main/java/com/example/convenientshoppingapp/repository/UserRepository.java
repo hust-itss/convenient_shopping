@@ -1,6 +1,6 @@
 package com.example.convenientshoppingapp.repository;
 
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<Users, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<List<Users>> findByUsernameContainingIgnoreCase(String name);
+    Optional<List<User>> findByUsernameContainingIgnoreCase(String name);
 
-    Optional<Users> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-    Optional<Users> findById(Long id);
-
-    Optional<Users> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     Boolean existsByUsername(String username);
 
     Boolean existsByEmail(String email);
 
-    ArrayList<Users> findByIdIn(List<Long> listId);
+    ArrayList<User> findByIdIn(List<Long> listId);
+
+    Optional<User> findUserByUsernameOrEmail(String username, String email);
 }

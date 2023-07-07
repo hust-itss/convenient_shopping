@@ -1,7 +1,7 @@
 package com.example.convenientshoppingapp.service.impl.auth;
 
 import com.example.convenientshoppingapp.entity.auth.Role;
-import com.example.convenientshoppingapp.entity.auth.Users;
+import com.example.convenientshoppingapp.entity.auth.User;
 import com.example.convenientshoppingapp.repository.RoleRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
-    List<Users> findAllUser(){
+    List<User> findAllUser(){
         return userRepository.findAll();
     }
 
     @Override
-    public Users saveUser(Users user) {
+    public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addRoleToUser(String username, String roleName) {
-        Users user = userRepository.findByUsername(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         Optional<Role> role = roleRepository.findByName(roleName);
         if (user != null && role.isPresent()) {
             if (user.getRoles() == null) {

@@ -1,6 +1,6 @@
 package com.example.convenientshoppingapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.convenientshoppingapp.entity.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Getter
@@ -24,8 +23,16 @@ public class FoodHistory extends BaseEntity{
     private Long userId;
 
     private Double quantity;
+
+    @Column(name = "group_id")
+    private Long groupId;
+
     @Column(name = "measure_id")
     private Long measureId;
+
+    @Column(name = "bought_by")
+    private Long boughtBy;
+
     private Double price;
 
     @Column(name = "buy_at")
@@ -40,8 +47,20 @@ public class FoodHistory extends BaseEntity{
     @Column(name = "expire_at")
     private Timestamp expireAt;
 
-    @ManyToOne
-    @JoinColumn(name = "food_id",insertable=false, updatable=false, nullable = false)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", updatable = false, insertable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="bought_by", updatable = false, insertable = false)
+    private User userBought;
+
+    @OneToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "food_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Food food;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "measure_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private FoodMeasure measure;
+
 }

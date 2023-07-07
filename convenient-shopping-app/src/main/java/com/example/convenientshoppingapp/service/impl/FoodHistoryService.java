@@ -2,12 +2,16 @@ package com.example.convenientshoppingapp.service.impl;
 
 import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.dto.food.CreateFoodHistoryRequest;
+import com.example.convenientshoppingapp.dto.food_history.FoodHistoryResponse;
+import com.example.convenientshoppingapp.dto.food_history.UpdateFoodHistoryRequest;
 import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.FoodHistory;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.repository.FoodHistoryRepository;
 import com.example.convenientshoppingapp.repository.FoodMeasureRespository;
 import com.example.convenientshoppingapp.repository.FoodRepository;
+import com.example.convenientshoppingapp.repository.GroupRepository;
+import com.example.convenientshoppingapp.repository.spec.FoodHistorySpecification;
 import com.example.convenientshoppingapp.repository.spec.MySpecification;
 import com.example.convenientshoppingapp.repository.spec.SearchCriteria;
 import com.example.convenientshoppingapp.repository.spec.SearchOperation;
@@ -23,12 +27,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -39,6 +41,7 @@ public class FoodHistoryService {
     private final FoodHistoryRepository foodHistoryRepository;
     private final FoodRepository foodRepository;
     private final FoodMeasureRespository foodMeasureRespository;
+    private final GroupRepository groupRepository;
     private final ModelMapper modelMapper;
     public ResponseEntity<ResponseObject> create(CreateFoodHistoryRequest foodRequest) {
         // Kiểm tra xem thực phẩm có tồn tại hay không
@@ -53,8 +56,16 @@ public class FoodHistoryService {
                     .body(new ResponseObject("error", "Đơn vị thực phẩm này không tồn tại trong hệ thống", ""));
         }
 
+        Long userId = UserUtil.getCurrentUserId();
+        if(foodRequest.getGroupId() != null) {
+            if(!groupRepository.existsByOwnerIdAndId(userId, foodRequest.getGroupId())) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseObject("error", "Bạn không thể thêm thực phẩm vào nhóm này", ""));
+            }
+        }
         FoodHistory food = modelMapper.map(foodRequest, FoodHistory.class);
-        food.setUserId(UserUtil.getCurrentUserId());
+        food.setUserId(userId);
         return  ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseObject("success", "", foodHistoryRepository.save(food)));
@@ -83,9 +94,7 @@ public class FoodHistoryService {
         }
 
         if(name.length() > 0) {
-            MySpecification esEmployeeCode = new MySpecification();
-            esEmployeeCode.add(new SearchCriteria("name", name, SearchOperation.MATCH));
-            spec = spec.and(esEmployeeCode);
+            spec = spec.and(FoodHistorySpecification.hasFoodContainName(name));
         }
 
         Long userId = UserUtil.getCurrentUserId();
@@ -93,15 +102,25 @@ public class FoodHistoryService {
         esEmployeeCode.add(new SearchCriteria("userId", userId, SearchOperation.EQUAL));
         spec = spec.and(esEmployeeCode);
 
+        MySpecification<FoodHistory> esGroupId = new MySpecification();
+        esEmployeeCode.add(new SearchCriteria("groupId", null, SearchOperation.IS_NULL));
+        spec = spec.and(esGroupId);
+
+
         Page<FoodHistory> pageFood;
         List<FoodHistory> foods = new ArrayList<FoodHistory>();
-        pageFood = foodHistoryRepository.findAll(spec, paging);
-        foods = pageFood.getContent();
-        for(FoodHistory food : foods){
-            food.setFood(foodRepository.findFoodById(food.getId()));
-        }
+        pageFood = foodHistoryRepository.findAll(spec,paging);
+
         Map<String, Object> response = new HashMap<>();
-        response.put("foods", foods);
+        List<FoodHistoryResponse> employeesDto = Arrays.asList(modelMapper.map(pageFood.getContent(), FoodHistoryResponse[].class));
+
+//        employeesDto.forEach(e -> {
+//            Food food = foodRepository.findFoodById(e.getFoodId());
+//            e.setFoodName(food.getName());
+//            e.setFoodImage(food.getPosterLink());
+//            e.setMeasureName(foodMeasureRespository.findFoodMeasureById(e.getMeasureId()).getName());
+//        });
+        response.put("items", employeesDto);
         response.put("currentPage", pageFood.getNumber());
         response.put("totalItems", pageFood.getTotalElements());
         response.put("totalPages", pageFood.getTotalPages());
@@ -109,6 +128,74 @@ public class FoodHistoryService {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseObject("success", "", response));
+    }
+
+    public ResponseEntity<ResponseObject> update(Long id, UpdateFoodHistoryRequest newValue) {
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<FoodHistory> foodHistoryOptional;
+        if(newValue.getGroupId() != null) {
+            foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndGroupId(id, newValue.getGroupId());
+        } else {
+            foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndUserId(id, userId);
+        }
+
+        if(!foodHistoryOptional.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Thực phẩm này không tồn tại trong kho của bạn", newValue));
+        }
+
+        FoodHistory foodHistory = foodHistoryOptional.get();
+
+        if(newValue.getIsBought()) {
+            foodHistory.setPrice(newValue.getPrice());
+            foodHistory.setBuyAddress(newValue.getBuyAddress());
+            foodHistory.setBuyAt(newValue.getBuyAt());
+            foodHistory.setExpireAt(newValue.getExpireAt());
+            foodHistory.setIsStoredInFridge(newValue.getIsStoredInFridge());
+            foodHistory.setMeasureId(newValue.getMeasureId());
+            foodHistory.setQuantity(newValue.getQuantity());
+            foodHistory.setBoughtBy(userId);
+        } else {
+            foodHistory.setBuyAt(null);
+            foodHistory.setBoughtBy(null);
+        }
+
+        foodHistoryRepository.save(foodHistory);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Cập nhật thông tin thực phẩm thành công", null));
+    }
+
+    public ResponseEntity<ResponseObject> getDetail(Long id) {
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<FoodHistory> foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndUserId(id, userId);
+        if(!foodHistoryOptional.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Thực phẩm này không tồn tại trong kho của bạn", null));
+        }
+
+        FoodHistory foodHistory = foodHistoryOptional.get();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "", foodHistory));
+    }
+
+    public ResponseEntity<ResponseObject> delete(Long id) {
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<FoodHistory> foodHistoryOptional = foodHistoryRepository.findFoodHistoryByIdAndUserId(id, userId);
+        if(!foodHistoryOptional.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Thực phẩm này không tồn tại trong kho của bạn", null));
+        }
+
+        foodHistoryRepository.deleteById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Xóa thực phẩm thành công", null));
     }
 
 }
