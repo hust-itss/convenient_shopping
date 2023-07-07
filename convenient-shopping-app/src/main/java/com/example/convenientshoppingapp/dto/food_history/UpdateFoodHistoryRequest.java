@@ -16,4 +16,5 @@ public class UpdateFoodHistoryRequest {
     private int isStoredInFridge;
     private Timestamp expireAt;
     private Boolean isBought;
+    private Long groupId;
 }

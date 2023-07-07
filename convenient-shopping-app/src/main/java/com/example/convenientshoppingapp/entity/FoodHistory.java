@@ -55,11 +55,11 @@ public class FoodHistory extends BaseEntity{
     @JoinColumn(name="bought_by", updatable = false, insertable = false)
     private User userBought;
 
-    @OneToOne(cascade = CascadeType.ALL, optional=false)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "food_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Food food;
 
-    @OneToOne(cascade = CascadeType.ALL, optional=false)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "measure_id", referencedColumnName = "id", insertable = false, updatable = false)
     private FoodMeasure measure;
 

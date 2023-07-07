@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface FoodHistoryRepository extends JpaRepository<FoodHistory, Long>, JpaSpecificationExecutor<FoodHistory> {
 
     Optional<FoodHistory> findFoodHistoryByIdAndUserId(Long id, Long userId);
+    Optional<FoodHistory> findFoodHistoryByIdAndGroupId(Long id, Long groupId);
 
     List<FoodHistory> findAllByGroupId(Long groupId);
 }
