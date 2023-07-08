@@ -1,5 +1,4 @@
 package com.example.convenientshoppingapp.entity;
-
 import com.example.convenientshoppingapp.entity.auth.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -7,11 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,25 +16,20 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "recipe")
 public class Recipe extends BaseEntity{
-
-    @Column(name = "dish_id")
-    private Long dishId;
-
+    private String name;
+    @Column(name = "poster_link")
+    private String posterLink;
     private String descriptions;
 
-    @ManyToMany(mappedBy = "recipes", fetch = FetchType.LAZY)
-    //@Fetch(value = FetchMode.SELECT)
-    @JsonIgnore
-    private Set<Food> foods = new HashSet<>();
+    @Column(name = "user_id")
+    private Long userId;
 
-    @ManyToMany(mappedBy = "recipes")
-    @Fetch(value = FetchMode.SELECT)
-    @JsonIgnore
-    private Set<User> users = new HashSet<>();
+    @OneToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User owner;
 
-    @ManyToOne
-    @JoinColumn(name = "dish_id",insertable=false, updatable=false, nullable = false)
-    @JsonIgnore
-    private Dish dish;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "recipe_food", joinColumns = @JoinColumn(name = "recipe_id"), inverseJoinColumns = @JoinColumn(name = "food_id"))
+    private List<Food> foods;
 
 }

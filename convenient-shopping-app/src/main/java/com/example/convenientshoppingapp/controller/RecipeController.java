@@ -1,6 +1,7 @@
 package com.example.convenientshoppingapp.controller;
 
 import com.example.convenientshoppingapp.dto.AddFavoriteRecipeRequest;
+import com.example.convenientshoppingapp.dto.recipe.CreateRecipeRequest;
 import com.example.convenientshoppingapp.entity.Recipe;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.RecipeService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/recipe")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class RecipeController {
     private final RecipeService recipeService;
@@ -21,31 +23,29 @@ public class RecipeController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ResponseObject> save(@RequestBody @Valid Recipe recipe) {
-        recipeService.save(recipe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Insert dữ liệu thành công", recipe));
+    public ResponseEntity<ResponseObject> save(@RequestBody @Valid CreateRecipeRequest request) {
+        return recipeService.save(request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@PathVariable("id") Long id,@RequestBody @Valid Recipe recipe) {
-        recipe.setId(id);
-        recipeService.save(recipe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Cập nhật dữ liệu thành công", ""));
+    public ResponseEntity<ResponseObject> update(@PathVariable("id") Long id,@RequestBody @Valid CreateRecipeRequest recipe) {
+        return recipeService.update(recipe, id);
     }
 
     @GetMapping("")
     public ResponseEntity<ResponseObject> getAll(
             @RequestParam(defaultValue = "10", name = "size") int size,
-            @RequestParam(defaultValue = "0", name = "page") int page
+            @RequestParam(defaultValue = "", name = "name") String name,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "0", name = "myRecipe") int myRecipe
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("success", "Lấy dữ liệu thành công", recipeService.getAllRecipe(page,size)));
+        return recipeService.getAllRecipe(name, page,size, myRecipe);
 
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<ResponseObject> delete(@RequestBody Long[] ids) {
-        recipeService.deleteRecipeById(ids);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("success", "Xóa dữ liệu thành công", ""));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseObject> delete(@PathVariable("id") Long id) {
+        return recipeService.deleteRecipeById(id);
     }
    
 }

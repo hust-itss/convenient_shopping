@@ -33,11 +33,11 @@ public class Food extends BaseEntity{
     @JoinTable
     private Long ownerId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "recipe_food",
-            joinColumns = @JoinColumn(name = "food_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
-    private Set<Recipe> recipes = new HashSet<>();
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(name = "recipe_food",
+//            joinColumns = @JoinColumn(name = "food_id"),
+//            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
+//    private Set<Recipe> recipes = new HashSet<>();
 
     //
 //    @ManyToMany(mappedBy = "recipes")

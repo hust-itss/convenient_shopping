@@ -1,22 +1,33 @@
 package com.example.convenientshoppingapp.service.impl;
 
+import com.example.convenientshoppingapp.Utils.UserUtil;
+import com.example.convenientshoppingapp.dto.PaginationResponse;
+import com.example.convenientshoppingapp.dto.dish.CreateDishRequest;
+import com.example.convenientshoppingapp.dto.dish.DishResponse;
+import com.example.convenientshoppingapp.dto.dish.UpdateDishRequest;
 import com.example.convenientshoppingapp.entity.Dish;
+import com.example.convenientshoppingapp.entity.FoodHistory;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.repository.DishRepository;
+import com.example.convenientshoppingapp.repository.spec.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
+
+import static org.springframework.data.jpa.domain.Specification.where;
 
 @Service
 @RequiredArgsConstructor
@@ -24,23 +35,24 @@ import java.util.Map;
 public class DishService {
 
     private final DishRepository dishRepository;
-
+    private final ModelMapper modelMapper;
 
     /**
      * Lưu dish vào database
      * Nếu dish đã tồn tại thì sẽ throw ra lỗi
      * Nếu dish chưa tồn tại thì sẽ lưu vào database
      * Được sử dụng trong DishController
-     * @param dish
      * @return
      */
     @Modifying
-    public Dish save(Dish dish) {
-        if(dishRepository.findByName(dish.getName()).isPresent()){
-            throw new RuntimeException("Dish name already exists");
-        }
-        log.info("Dish: {}", dish);
-        return dishRepository.save(dish);
+    public ResponseEntity<ResponseObject> save(CreateDishRequest dishRequest) {
+        Dish dish = modelMapper.map(dishRequest, Dish.class);
+        Long userId = UserUtil.getCurrentUserId();
+        dish.setUserId(userId);
+        dishRepository.save(dish);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseObject("success", "Thêm dự định nấu thành công", null));
     }
 
     /**
@@ -50,18 +62,33 @@ public class DishService {
      * @return
      */
     @Modifying
-    public Dish update(Dish dish) {
-        // Check nếu không tìm thấy id của dish thì sẽ throw ra lỗi
-        Dish oldDish = dishRepository.findById(dish.getId())
-                .orElseThrow(() -> new RuntimeException("Dish not found with id: " + dish.getId()));
-        //set các thuộc tính mới cho oldDish để lưu vào database
-        oldDish.setDescriptions(dish.getDescriptions());
-        oldDish.setName(dish.getName());
-        oldDish.setCookDate(dish.getCookDate());
-        oldDish.setExpired(dish.getExpired());
+    public ResponseEntity<ResponseObject> update(Long dishId, UpdateDishRequest dishRequest) {
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<Dish> dishOptional = dishRepository.findDishByIdAndUserId(dishId, userId);
+        if(!dishOptional.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Dự định này không tồn tại hoặc không thuộc tài khoản của bạn", null));
+        }
 
-        log.info("Dish: {}", oldDish);
-        return dishRepository.save(oldDish);
+        Dish dish = dishOptional.get();
+        if(dishRequest.getIsCook() == false) {
+            dish.setExpireAt(null);
+            dish.setIsCook(false);
+            dish.setIsStoredFridge(false);
+        } else {
+            dish.setDescriptions(dishRequest.getDescriptions());
+            dish.setCookDate(dishRequest.getCookDate());
+            dish.setCookMeal(dishRequest.getCookMeal());
+            dish.setExpireAt(dishRequest.getExpireAt());
+            dish.setIsStoredFridge(dishRequest.getIsStoredFridge());
+            dish.setIsCook(dishRequest.getIsCook());
+        }
+
+        dishRepository.save(dish);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Cập nhật dự định thành công", null));
     }
 
 
@@ -83,11 +110,20 @@ public class DishService {
      * @return
      */
     @Modifying
-    public ResponseObject deleteById(Long id) {
-        Dish dish = dishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Food not found with id: " + id));
-        dishRepository.delete(dish);
-        return new ResponseObject("success", "Delete food successfully", "");
+    public ResponseEntity<ResponseObject> deleteById(Long id) {
+        Long userId = UserUtil.getCurrentUserId();
+        Optional<Dish> dishOptional = dishRepository.findDishByIdAndUserId(id, userId);
+        if(!dishOptional.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("error", "Dự định này không tồn tại hoặc không thuộc tài khoản của bạn", null));
+        }
+
+        dishRepository.deleteById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "Xóa thành công", null));
+
     }
 
     /**
@@ -97,23 +133,50 @@ public class DishService {
      * @param name
      * @return
      */
-    public Map<String, Object> findDishByName(int page, int size, String name) {
+    public ResponseEntity<ResponseObject> getAll(int page, int size, String name, String startDate, String endDate, int meal) {
+        Specification<Dish> spec = where(null);
         Pageable paging = PageRequest.of(page, size, Sort.by(
                         Sort.Order.asc("id")
                 )
         );
+        if(!startDate.isEmpty()) {
+            LocalDate date = LocalDate.parse(startDate);
+            MySpecification esFoodStartDate = new MySpecification();
+            esFoodStartDate.add(new SearchCriteria("cookDate", date, SearchOperation.DATE_START));
+            spec = spec.and(esFoodStartDate);
+        }
+        if(!endDate.isEmpty()) {
+            LocalDate date = LocalDate.parse(endDate);
+            MySpecification esFoodEndDate = new MySpecification();
+            esFoodEndDate.add(new SearchCriteria("createAt", date, SearchOperation.DATE_END));
+            spec = spec.and(esFoodEndDate);
+        }
 
-        Page<Dish> pageDish;
-        List<Dish> dishes = new ArrayList<Dish>();
-        pageDish = dishRepository.getDishByNameContainingIgnoreCase(name, paging);
-        dishes = pageDish.getContent();
-        Map<String, Object> response = new HashMap<>();
-        response.put("dishes", dishes);
-        response.put("currentPage", pageDish.getNumber());
-        response.put("totalItems", pageDish.getTotalElements());
-        response.put("totalPages", pageDish.getTotalPages());
-        log.info("Get Dish by name use paging successfully");
-        return response;
+        if(meal > 0) {
+            MySpecification esFoodEndDate = new MySpecification();
+            esFoodEndDate.add(new SearchCriteria("cookMeal", meal, SearchOperation.EQUAL));
+            spec = spec.and(esFoodEndDate);
+        }
+
+        if(name.length() > 0) {
+            spec = spec.and(DishSpecification.hasFoodContainName(name));
+        }
+
+        MySpecification esFoodEndDate = new MySpecification();
+        esFoodEndDate.add(new SearchCriteria("userId", UserUtil.getCurrentUserId(), SearchOperation.EQUAL));
+        spec = spec.and(esFoodEndDate);
+
+        Page<Dish> pageDish = dishRepository.findAll(spec,paging);;
+        List<Dish> dishes = pageDish.getContent();
+        List<DishResponse> dishResponses = Arrays.asList(modelMapper.map(dishes, DishResponse[].class));
+        PaginationResponse response = new PaginationResponse();
+        response.setItems(dishResponses);
+        response.setTotalItem(pageDish.getTotalElements());
+        response.setTotalPage(pageDish.getTotalPages());
+        response.setCurrentPage(pageDish.getNumber());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "", response));
     }
 
     /**
@@ -132,11 +195,12 @@ public class DishService {
      * @return
      */
     public boolean isExpiringSoon(Dish dish) {
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        long threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
-        long timeDifference = dish.getExpired().getTime() - currentTime.getTime();
-
-        return timeDifference < threeDaysInMillis;
+//        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+//        long threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+//        long timeDifference = dish.getExpired().getTime() - currentTime.getTime();
+//
+//        return timeDifference < threeDaysInMillis;
+        return false;
     }
 
 

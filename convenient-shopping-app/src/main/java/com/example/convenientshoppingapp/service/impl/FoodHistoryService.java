@@ -2,6 +2,8 @@ package com.example.convenientshoppingapp.service.impl;
 
 import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.dto.food.CreateFoodHistoryRequest;
+import com.example.convenientshoppingapp.dto.food.FoodResponse;
+import com.example.convenientshoppingapp.dto.food_history.FoodAvailableResponse;
 import com.example.convenientshoppingapp.dto.food_history.FoodHistoryResponse;
 import com.example.convenientshoppingapp.dto.food_history.UpdateFoodHistoryRequest;
 import com.example.convenientshoppingapp.entity.Food;
@@ -18,7 +20,6 @@ import com.example.convenientshoppingapp.repository.spec.SearchOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +28,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -197,5 +199,41 @@ public class FoodHistoryService {
                 .status(HttpStatus.OK)
                 .body(new ResponseObject("success", "Xóa thực phẩm thành công", null));
     }
+
+    public ResponseEntity<ResponseObject> getAvailable(List<Long> foods) {
+        Long userId = UserUtil.getCurrentUserId();
+        LocalDate tomorrow = LocalDate.now();
+        Date today = Date.from(tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Timestamp startOfDay =new Timestamp(today.getTime());
+        List<FoodHistory> foodsExist = foodHistoryRepository.findAllDistinctByFoodIdInAndUserIdAndExpireAtGreaterThanEqualAndBuyAtNotNullOrderByBuyAtAsc(foods, userId, startOfDay);
+
+        // Danh sách thực phẩm đã có
+        List<FoodHistoryResponse> foodExist = Arrays.asList(modelMapper.map(foodsExist, FoodHistoryResponse[].class));
+        // Lấy các ID thực phẩm chưa có
+        List<Long> foodNotExist = new ArrayList<>();
+        foodsExist.forEach((food) -> {
+            Long foodId = food.getFood().getId();
+            foods.remove(Long.valueOf(foodId));
+        });
+
+        // Lấy thông tin các thực phẩm chưa có
+        List<Food> foodListNotExist = foodRepository.getAllByIdIn(foods);
+        List<FoodResponse> foodResponsesNotExist = Arrays.asList(modelMapper.map(foodListNotExist, FoodResponse[].class));
+        FoodAvailableResponse response = new FoodAvailableResponse();
+        response.setExist(foodExist);
+        response.setNotExist(foodResponsesNotExist);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "", response));
+    }
+
+    public ResponseEntity<ResponseObject> getStatistics(String startDate, String endDate, Long userId, Long groupId) {
+        List<Object> statisticsFoods = foodHistoryRepository.statisticsFood(startDate, endDate, userId, groupId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseObject("success", "", statisticsFoods));
+    }
+
+
 
 }

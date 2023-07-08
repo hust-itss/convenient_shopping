@@ -53,11 +53,11 @@ public class User extends BaseEntity implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "favorite",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
-    private Set<Recipe> recipes = new HashSet<>();
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(name = "favorite",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
+//    private Set<Recipe> recipes = new HashSet<>();
 //
 //    @ManyToMany(mappedBy = "users")
 //    @Fetch(value = FetchMode.SELECT)

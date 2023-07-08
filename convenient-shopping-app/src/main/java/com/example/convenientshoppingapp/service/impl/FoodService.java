@@ -2,6 +2,7 @@ package com.example.convenientshoppingapp.service.impl;
 
 import com.example.convenientshoppingapp.Utils.UserUtil;
 import com.example.convenientshoppingapp.dto.food.CreateFoodRequest;
+import com.example.convenientshoppingapp.dto.food.FoodResponse;
 import com.example.convenientshoppingapp.entity.Food;
 import com.example.convenientshoppingapp.entity.Recipe;
 import com.example.convenientshoppingapp.entity.ResponseObject;
@@ -161,11 +162,12 @@ public class FoodService {
         }
 
         Page<Food> pageFood;
-        List<Food> foods = new ArrayList<Food>();
         pageFood = foodRepository.findAll(spec, paging);
-        foods = pageFood.getContent();
+        List<Food> foods = pageFood.getContent();
+        List<FoodResponse> foodResponses =  Arrays.asList(modelMapper.map(foods, FoodResponse[].class));
+
         Map<String, Object> response = new HashMap<>();
-        response.put("foods", foods);
+        response.put("foods", foodResponses);
         response.put("currentPage", pageFood.getNumber());
         response.put("totalItems", pageFood.getTotalElements());
         response.put("totalPages", pageFood.getTotalPages());
@@ -231,8 +233,9 @@ public class FoodService {
      * @return
      */
     public Set<Recipe> getRecipesByFoodId(Long foodId){
-        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
-        return food.getRecipes();
+//        Food food = foodRepository.findById(foodId).orElseThrow(() -> new RuntimeException("Food not found with id:" + foodId));
+//        return food.getRecipes();
+        return null;
     }
 
     /**

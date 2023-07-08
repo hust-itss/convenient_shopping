@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/food_history")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -45,5 +47,20 @@ public class FoodHistoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete(@PathVariable Long id) {
         return foodHistoryService.delete(id);
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<ResponseObject> getAvailable(@RequestParam(defaultValue = "", name = "foodIds") List<Long> foodIs) {
+        return foodHistoryService.getAvailable(foodIs);
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ResponseObject> getStatistics(
+            @RequestParam(defaultValue = "", name = "start_date") String startDate,
+            @RequestParam(defaultValue = "", name = "end_date") String endDate,
+            @RequestParam(defaultValue = "", name = "user_id") Long userId,
+            @RequestParam(defaultValue = "", name = "group_id") Long groupId
+    ) {
+       return foodHistoryService.getStatistics(startDate, endDate, userId, groupId);
     }
 }

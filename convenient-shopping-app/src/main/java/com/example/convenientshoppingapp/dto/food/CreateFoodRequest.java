@@ -15,7 +15,7 @@ public class CreateFoodRequest {
     private String posterLink;
 
     @NotEmpty(message = "Mô tả không được để trống")
-    private String descriptions;
+    private String description;
 
     private Integer quantity;
 

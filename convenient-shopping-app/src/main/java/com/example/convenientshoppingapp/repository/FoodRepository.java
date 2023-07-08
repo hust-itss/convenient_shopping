@@ -34,4 +34,8 @@ public interface FoodRepository extends JpaRepository<Food, Long>, JpaSpecificat
      Long deleteByIdAndOwnerId(Long foodId, Long userId);
 
     Boolean existsByIdAndOwnerId(Long foodId, Long userId);
+
+    List<Food> getAllByIdIn(Set<Long> foodIds);
+
+    List<Food> getAllByIdIn(List<Long> foodIds);
 }

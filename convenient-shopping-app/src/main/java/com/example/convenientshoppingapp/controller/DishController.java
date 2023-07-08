@@ -1,5 +1,7 @@
 package com.example.convenientshoppingapp.controller;
 
+import com.example.convenientshoppingapp.dto.dish.CreateDishRequest;
+import com.example.convenientshoppingapp.dto.dish.UpdateDishRequest;
 import com.example.convenientshoppingapp.entity.Dish;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.service.impl.DishService;
@@ -23,9 +25,8 @@ public class DishController {
      * @return
      */
     @PostMapping("")
-    public ResponseEntity<ResponseObject> save(@RequestBody @Valid Dish dish){
-        dishService.save(dish);
-        return ResponseEntity.ok(new ResponseObject("success", "Insert dữ liệu thành công", dish));
+    public ResponseEntity<ResponseObject> save(@RequestBody @Valid CreateDishRequest dish){
+        return dishService.save(dish);
     }
 
     /**
@@ -35,10 +36,8 @@ public class DishController {
      * @return
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@PathVariable Long id, @RequestBody @Valid Dish dish){
-        dish.setId(id);
-        dishService.update(dish);
-        return ResponseEntity.ok(new ResponseObject("success", "Cập nhật dữ liệu thành công", dish));
+    public ResponseEntity<ResponseObject> update(@PathVariable Long id, @RequestBody @Valid UpdateDishRequest dishRequest){
+        return dishService.update(id, dishRequest);
     }
 
     /**
@@ -52,9 +51,13 @@ public class DishController {
     public ResponseEntity<ResponseObject> getAll(
             @RequestParam(defaultValue = "", name = "name") String name,
             @RequestParam(defaultValue = "0", name = "page") int page,
-            @RequestParam(defaultValue = "10", name = "size") int size
+            @RequestParam(defaultValue = "10", name = "size") int size,
+            @RequestParam(defaultValue = "", name = "startDate") String startDate,
+            @RequestParam(defaultValue = "", name = "endDate") String endDate,
+            @RequestParam(defaultValue = "0", name = "meal") int meal
+
     ){
-        return ResponseEntity.ok(new ResponseObject("success", "Lấy dữ liệu thành công", dishService.findDishByName(page,size,name)));
+        return dishService.getAll(page,size,name, startDate, endDate, meal);
     }
 
     /**
@@ -75,7 +78,6 @@ public class DishController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteById(@PathVariable Long id){
-        dishService.deleteById(id);
-        return ResponseEntity.ok(new ResponseObject("success", "Xóa dữ liệu thành công", null));
+        return dishService.deleteById(id);
     }
 }
