@@ -1,43 +1,27 @@
-package com.example.convenientshoppingapp.servicetest;
+package com.example.convenientshoppingapp.serviceTest;
 
-import com.example.convenientshoppingapp.Utils.UserUtil;
-import com.example.convenientshoppingapp.dto.PaginationResponse;
 import com.example.convenientshoppingapp.dto.group.CreateGroupRequest;
 import com.example.convenientshoppingapp.dto.group.GroupDetailResponse;
 import com.example.convenientshoppingapp.dto.group.GroupResponse;
 import com.example.convenientshoppingapp.dto.group.UpdateGroupRequest;
-import com.example.convenientshoppingapp.entity.FoodHistory;
 import com.example.convenientshoppingapp.entity.Group;
 import com.example.convenientshoppingapp.entity.ResponseObject;
 import com.example.convenientshoppingapp.entity.auth.User;
 import com.example.convenientshoppingapp.repository.FoodHistoryRepository;
 import com.example.convenientshoppingapp.repository.GroupRepository;
 import com.example.convenientshoppingapp.repository.UserRepository;
-import com.example.convenientshoppingapp.repository.spec.MySpecification;
-import com.example.convenientshoppingapp.repository.spec.SearchCriteria;
-import com.example.convenientshoppingapp.repository.spec.SearchOperation;
 import com.example.convenientshoppingapp.service.impl.GroupService;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -24,7 +24,7 @@ public interface FoodRepository extends JpaRepository<Food, Long>, JpaSpecificat
 
     Food findByName(String name);
 
-    Food findFoodById(Long Id);
+    Optional<Food> findById(Long Id);
 
     @Query(value = "select r.id from food f join recipe_food rf on f.id = rf.food_id join recipe r on r.id = rf.recipe_id where f.id = :foodId", nativeQuery = true)
     Set<Recipe> findAllRecipeFromFood(@Param("foodId") Long foodId);
